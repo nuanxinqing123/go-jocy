@@ -1,0 +1,156 @@
+package utils
+
+import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/base64"
+	"encoding/pem"
+	"fmt"
+	"strings"
+)
+
+const privateKeyPEM = `-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAxm2Kzu9L/FNX42em9Xo73JXtJCtrhleKN9jqclpK6/Iyah/T
+UjH5RCNItWiTKHg6LcsGxZs9+4fP6uU8oO5Qp1akaOrJTg3QTQQFyRxDrv+LN/nL
+6/MpSf3SnihyVPQWwlkj3yHZWrVC9HI3q2JmzGV/kzwnpVIj2as8zl4cO7OZr0F9
+bR+G4jblqLPmB/x/BBOGrWWCxn+YI2RVHw23dev9jql284eN/KV4tlDlbtoJGy4+
+Cb7nEV/THvRVZYbHAp+fMY0+NyqyslLX/btJqT8eSH6Hb8c+BSC77Dry4G8/m/wU
+YPdvXiL3cVhZmEaqjs8rUafGyQmW3mrflAbIJwIDAQABAoIBAQCbRhUdIbzAUyev
+V+kapvA5CUlsyF133wDV+vRbT7TZNcmlqgnfhCOe4k1/R7oALTS5qOo/r9+s+PYG
+xiPPey26BN7bCv9ECSM7YS511ZxRUL9MqjidBscEk49BHD17pRY6Ny8O6JoBlV4z
+kz1k67etsq9GNAiCIejT6F/IzXQicmO5MaJWCjBNSP+IPTvd5NW3DUNlt2NcCBvO
+2sCgSq2Z4B0IdNWeSvd4ZmA2qSkqk60A8glNR4HdRTG9VWR0fUOd/qzpN1vjBUKM
+aIHeUX50NCRdK8EGqrVOCq4uUgBRj7bjt0DOb9ck4vYxgBdkyK4HMYsAGdirYKxd
+DkseicqhAoGBAOZ750Vky38kq3MucAE/uaFpaDUSeOKDy03fumM6TLlkeAxnTQZW
+NBDzlrqNgQPMLu+tmm+ZsEN5buF8C2oKc97+Rz21rvrOufr4sX2PqHfj/kerYGq/
+NzX1jpRbqsmcs+3JxveeozHuXBbOFpd8teCGZPFPHREFDe4sZFtFmwX1AoGBANxl
+JNlKIz0TVmPgGCUZ4j8BRBiLPHMeFkUoam6Djou2iJLYey3ZNHhyMiRER7Smia0f
+Y/QjqJIeSRWQlZExu6s9ijl4VSmoh4hLanOxxAE+gFnuhgK4XwMV0hvHbqSaupQd
+fkULZ+t3rGKzt+t+0ob7xx+LjYWEwpLsKCQKRKgrAoGADLPvfyea/5rpyCNbEPaO
+KJNCpwopl3JkFhqqjyV7bQxYgXaADEVcAUMrn4SFA8yRGaybwmLaEB31OoA3sNR6
+pmOlUYVd63zRSz/BqIXuZw0tyo1rdvaq+FJcVVjoBMyaLhTc3nDj1bCpaqhZHmhF
+Lea6UYJmu7VnmyTfMxiW/rECgYAh4MJLTGQiTUioTZgoi9QFT1KCW1TNdUCDHPVP
+S5Wr0EEqIXC92XeBVDx06rIDCN586ChbLOgKnfEqCXGUQgrRBcKrlt2wa6F5x+3z
+Hs48Srk8Gbgrzt97/+yuLHfLgaVQg0AXqOsufNTYzztkTbha23T+WltEvOWT5A0/
+jPyExQKBgCGbq62piyIEeMNoP/SoLvh4hTq/eeNw5yCcLEsLrgt45Xb/2YgeyXWv
+xTXl4c8bPdZTFYQ9A7IUYvhizpH032tDouqCsvgu3KtDO/pW6IteL17YBco7fRMQ
+JhBuQjGDCMEGEJW76GwlXj/xUW32TN/5KeQXtHHZ4z2lZlJLU81B
+-----END RSA PRIVATE KEY-----`
+
+// PKCS7 填充移除
+func pkcs7Unpad(data []byte) ([]byte, error) {
+	length := len(data)
+	if length == 0 {
+		return nil, fmt.Errorf("data is empty")
+	}
+	padding := int(data[length-1])
+	if padding > length || padding > aes.BlockSize {
+		return nil, fmt.Errorf("invalid padding size")
+	}
+	return data[:length-padding], nil
+}
+
+// 反转字符串
+func reverse(s string) string {
+	runes := []rune(s)
+	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
+		runes[i], runes[j] = runes[j], runes[i]
+	}
+	return string(runes)
+}
+
+// RsaDecryption RSA解密
+func RsaDecryption(encryptedText string) (string, error) {
+	// 解码私钥
+	block, _ := pem.Decode([]byte(privateKeyPEM))
+	if block == nil || block.Type != "RSA PRIVATE KEY" {
+		return "", fmt.Errorf("failed to decode PEM block containing private key")
+	}
+
+	// 解析PKCS1格式私钥
+	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse private key: %v", err)
+	}
+
+	// 解码密文
+	ciphertext, err := base64.StdEncoding.DecodeString(encryptedText)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode base64 ciphertext: %v", err)
+	}
+
+	// 解密
+	plaintext, err := rsa.DecryptPKCS1v15(rand.Reader, privateKey, ciphertext)
+	if err != nil {
+		return "", fmt.Errorf("failed to decrypt: %v", err)
+	}
+
+	return string(plaintext), nil
+}
+
+// AesDecryption AES解密
+func AesDecryption(encryptedText, key, iv string) (string, error) {
+	// 将密文解码为字节数组
+	ciphertext, err := base64.StdEncoding.DecodeString(encryptedText)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode base64 ciphertext: %v", err)
+	}
+
+	// 将密钥和IV转换为字节数组
+	keyBytes := []byte(key)
+	ivBytes := []byte(iv)
+
+	// 检查密钥和IV长度是否匹配AES要求
+	if len(keyBytes) != 16 && len(keyBytes) != 24 && len(keyBytes) != 32 {
+		return "", fmt.Errorf("invalid key length: %d bytes", len(keyBytes))
+	}
+	if len(ivBytes) != aes.BlockSize {
+		return "", fmt.Errorf("invalid IV length: %d bytes (must be %d)", len(ivBytes), aes.BlockSize)
+	}
+
+	// 创建AES块
+	block, err := aes.NewCipher(keyBytes)
+	if err != nil {
+		return "", fmt.Errorf("failed to create AES cipher: %v", err)
+	}
+
+	// 检查密文长度是否为块大小的倍数
+	if len(ciphertext)%aes.BlockSize != 0 {
+		return "", fmt.Errorf("ciphertext is not a multiple of the block size")
+	}
+
+	// 使用 CBC 模式解密
+	mode := cipher.NewCBCDecrypter(block, ivBytes)
+	plaintext := make([]byte, len(ciphertext))
+	mode.CryptBlocks(plaintext, ciphertext)
+
+	// 移除填充
+	plaintext, err = pkcs7Unpad(plaintext)
+	if err != nil {
+		return "", fmt.Errorf("failed to unpad plaintext: %v", err)
+	}
+
+	return string(plaintext), nil
+}
+
+// ResponseDecryption 响应解密
+func ResponseDecryption(encryptedText string) (string, error) {
+	// 根据[.]分割字符串
+	parts := strings.Split(encryptedText, ".")
+	rsaText := parts[0]
+	aesText := parts[1]
+
+	// RSA解密
+	rsaKey, err := RsaDecryption(rsaText)
+	if err != nil {
+		return "", err
+	}
+	// 反转rsaKey得到rsaIV
+	rsaIV := reverse(rsaKey)
+
+	// AES解密
+	return AesDecryption(aesText, rsaKey, rsaIV)
+}

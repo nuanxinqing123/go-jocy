@@ -10,8 +10,8 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"QLToolsV2/config"
-	"QLToolsV2/utils"
+	"go-jocy/config"
+	"go-jocy/utils"
 )
 
 var FileRotateLogs = new(fileRotateLogs)

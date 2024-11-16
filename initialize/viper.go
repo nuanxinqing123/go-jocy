@@ -6,7 +6,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 
-	"QLToolsV2/config"
+	"go-jocy/config"
 )
 
 // Viper 初始化配置

@@ -1,7 +1,8 @@
 package autoload
 
 type App struct {
-	Mode    string `mapstructure:"mode" json:"mode" yaml:"mode"`
-	Address string `mapstructure:"address" json:"address" yaml:"address"`
-	Port    int    `mapstructure:"port" json:"port" yaml:"port"`
+	Mode    string   `mapstructure:"mode" json:"mode" yaml:"mode"`
+	Address string   `mapstructure:"address" json:"address" yaml:"address"`
+	Port    int      `mapstructure:"port" json:"port" yaml:"port"`
+	BaseURL []string `mapstructure:"baseURL" json:"baseURL" yaml:"baseURL"`
 }

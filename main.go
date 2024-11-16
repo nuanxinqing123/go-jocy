@@ -15,7 +15,6 @@ import (
 
 	"go-jocy/config"
 	"go-jocy/initialize"
-	"go-jocy/internal/cron"
 )
 
 func main() {
@@ -24,13 +23,6 @@ func main() {
 
 	// 初始化日志
 	config.GinLOG = initialize.Zap()
-
-	// 启动定时任务
-	if err := cron.InitTask(); err != nil {
-		fmt.Printf("定时任务初始化失败, err:%v\n", err)
-		return
-	}
-	zap.L().Debug("定时任务初始化成功...")
 
 	// 初始化路由
 	router := initialize.Routers()

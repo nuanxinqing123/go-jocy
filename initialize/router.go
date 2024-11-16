@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bytedance/pid_limits/application/adaptive"
 	"github.com/gin-gonic/gin"
 
 	assetfs "github.com/elazarl/go-bindata-assetfs"
@@ -27,8 +26,6 @@ func Routers() *gin.Engine {
 		fmt.Println("运行模式: Release模式")
 		gin.SetMode(gin.ReleaseMode)
 	}
-	fmt.Println("登录地址：IP或域名:" + strconv.Itoa(config.GinConfig.App.Port) + "/#/login")
-	fmt.Println("注册地址：IP或域名:" + strconv.Itoa(config.GinConfig.App.Port) + "/#/register")
 	fmt.Println("监听端口: " + strconv.Itoa(config.GinConfig.App.Port))
 	fmt.Println(" ")
 
@@ -42,7 +39,7 @@ func Routers() *gin.Engine {
 	// (可选项)
 	// PID 限流基于实例的 CPU 使用率，通过拒绝一定比例的流量, 将实例的 CPU 使用率稳定在设定的阈值上。
 	// 地址: https://github.com/bytedance/pid_limits
-	Router.Use(adaptive.PlatoMiddlewareGinDefault(0.8))
+	// Router.Use(adaptive.PlatoMiddlewareGinDefault(0.8))
 
 	// 前端静态文件
 	{
@@ -72,8 +69,8 @@ func Routers() *gin.Engine {
 		c.String(http.StatusOK, "pong")
 	})
 
-	ApiGroupOpen := Router.Group("/api")
-	router.InitRouterOpen(ApiGroupOpen)
+	ApiGroup := Router.Group("/app")
+	router.InitRouterApp(ApiGroup)
 
 	return Router
 }

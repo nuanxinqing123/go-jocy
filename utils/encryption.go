@@ -3,14 +3,25 @@ package utils
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/md5"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/pem"
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
+
+	"github.com/go-resty/resty/v2"
+	jsoniter "github.com/json-iterator/go"
+
+	"go-jocy/internal/model"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 const privateKeyPEM = `-----BEGIN RSA PRIVATE KEY-----
 MIIEowIBAAKCAQEAxm2Kzu9L/FNX42em9Xo73JXtJCtrhleKN9jqclpK6/Iyah/T
@@ -153,4 +164,57 @@ func ResponseDecryption(encryptedText string) (string, error) {
 
 	// AES解密
 	return AesDecryption(aesText, rsaKey, rsaIV)
+}
+
+// MD5PlayUrlSign 生成播放地址签名
+func MD5PlayUrlSign(jmStr, salt, ts string) string {
+	combined := jmStr + salt + ts
+	hash := md5.Sum([]byte(combined))
+	return hex.EncodeToString(hash[:])
+}
+
+// DecryptPlayUrl 解密播放地址
+func DecryptPlayUrl(source string) (any, error) {
+	// 模拟设备信息
+	platform := "Android"
+	appVersion := "1.5.7.5"
+
+	// 加密盐
+	salt := "v50gjcy"
+
+	// 时间戳
+	ts := strconv.FormatInt(time.Now().Unix(), 10)
+
+	modifiedSource := fmt.Sprintf("%s&t=%s", source, ts)
+
+	// 创建请求
+	client := resty.New()
+
+	client.SetHeaderVerbatim("User-Agent", "Dart/2.17 (dart:io)")
+	client.SetHeaderVerbatim("x-time", ts)
+	client.SetHeaderVerbatim("x-form", platform)
+	client.SetHeaderVerbatim("x-sign1", MD5PlayUrlSign(appVersion, salt, ts))
+	client.SetHeaderVerbatim("x-sign2", MD5PlayUrlSign(source, salt, ts))
+
+	resp, err := client.R().Get("http://49.235.143.104:8483/vo1v03.php?url=" + modifiedSource)
+	if err != nil {
+		return nil, err
+	}
+
+	// AES解密
+	key := "wcyjmnnnawozmydn"
+	iv := "wcivwyjmlnzbhlmq"
+
+	decrypted, err := AesDecryption(resp.String(), key, iv)
+	if err != nil {
+		return nil, err
+	}
+
+	var pu model.PlayURL
+	err = json.Unmarshal([]byte(decrypted), &pu)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(decrypted)
+	return pu, nil
 }

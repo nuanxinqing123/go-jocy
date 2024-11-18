@@ -20,4 +20,7 @@ func InitRouterApp(r *gin.RouterGroup) {
 	r.GET("/video/play", controllers.VideoPlay)
 	r.GET("/danmu", controllers.Danmu)
 	r.GET("/video/search", controllers.VideoSearch)
+
+	// 获取播放资源
+	r.GET("/play/resources", controllers.PlayResources)
 }

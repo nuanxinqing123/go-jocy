@@ -14,6 +14,7 @@ import (
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
+// UserInfo 用户信息
 func UserInfo(c *gin.Context) {
 	client := utils.New(c.Request.Header.Get("x-token"))
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/users/info"
@@ -323,4 +324,21 @@ func VideoSearch(c *gin.Context) {
 	}
 
 	c.String(http.StatusOK, result)
+}
+
+// PlayResources 获取播放资源
+func PlayResources(c *gin.Context) {
+	url := c.Query("url")
+	client := utils.New(c.Request.Header.Get("x-token"))
+
+	resp, err := client.Get(url, nil)
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	c.Data(http.StatusOK, resp.Header().Get("Content-Type"), resp.Body())
 }

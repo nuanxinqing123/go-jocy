@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	assetfs "github.com/elazarl/go-bindata-assetfs"
@@ -34,7 +35,7 @@ func Routers() *gin.Engine {
 	Router.Use(middleware.Recovery())
 
 	// 允许跨域
-	Router.Use(middleware.Cors())
+	Router.Use(cors.New(middleware.CorsConfig))
 
 	// (可选项)
 	// PID 限流基于实例的 CPU 使用率，通过拒绝一定比例的流量, 将实例的 CPU 使用率稳定在设定的阈值上。

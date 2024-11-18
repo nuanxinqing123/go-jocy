@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/go-resty/resty/v2"
 
@@ -21,6 +22,11 @@ func New(AuthToken string) *Request {
 		client.SetDebug(true)
 	}
 
+	// 设置错误重试
+	client.SetRetryCount(5)
+	client.SetRetryWaitTime(1 * time.Second)
+
+	// 设置请求头
 	client.SetHeaderVerbatim("User-Agent", "Dart/2.17 (dart:io)")
 	client.SetHeaderVerbatim("ts", "1731687706456")
 	client.SetHeaderVerbatim("x-version", "2020-09-17")

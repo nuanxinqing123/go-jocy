@@ -8,6 +8,7 @@ import (
 
 // InitRouterApp Api
 func InitRouterApp(r *gin.RouterGroup) {
+	r.POST("/users/login", controllers.UserLogin)
 	r.GET("/users/info", controllers.UserInfo)
 	r.GET("/channel", controllers.Channel)
 	r.GET("/video/list", controllers.VideoList)

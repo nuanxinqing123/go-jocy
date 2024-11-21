@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/md5"
@@ -22,6 +23,16 @@ import (
 )
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
+
+const publicKeyPEM = `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1eiQTbqff456g/MlFTOi
+cxAsw5kMac3ZGmjm+xCCggkuITKHx0Ae3B9EdoKDrYfZXSrC2Llty89RRGasZ36S
+zlZem+s8c4A/OIcXzbbGteCIk/ItlPMZZzZlVnIWC1OtLFuisadzbZjOLpxmAl+C
+cgUP2gcsaY8gQvXnkzJch8LoIcR+9orCW8zamPJOwoFq/sTDq0xP+TvUtGt2pijp
+ed0uv6fAE6rOqZoRjheFAEJMLQyNeZxeQfN7OqFnJGNq1MhwIwZ2BP78TEf+zqsh
+YdZPkXIlzISzoEi8P+HCtTc1veC9pJrDh0s7HoWmAFE8tFTj65gLWNS+0PvcLCOW
+DQIDAQAB
+-----END PUBLIC KEY-----`
 
 const privateKeyPEM = `-----BEGIN RSA PRIVATE KEY-----
 MIIEowIBAAKCAQEAxm2Kzu9L/FNX42em9Xo73JXtJCtrhleKN9jqclpK6/Iyah/T
@@ -51,7 +62,14 @@ xTXl4c8bPdZTFYQ9A7IUYvhizpH032tDouqCsvgu3KtDO/pW6IteL17YBco7fRMQ
 JhBuQjGDCMEGEJW76GwlXj/xUW32TN/5KeQXtHHZ4z2lZlJLU81B
 -----END RSA PRIVATE KEY-----`
 
-// PKCS7 填充移除
+// pkcs7Padding 填充
+func pkcs7Padding(ciphertext []byte, blockSize int) []byte {
+	padding := blockSize - len(ciphertext)%blockSize
+	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
+	return append(ciphertext, padtext...)
+}
+
+// pkcs7Unpad 填充移除
 func pkcs7Unpad(data []byte) ([]byte, error) {
 	length := len(data)
 	if length == 0 {
@@ -64,13 +82,40 @@ func pkcs7Unpad(data []byte) ([]byte, error) {
 	return data[:length-padding], nil
 }
 
-// 反转字符串
-func reverse(s string) string {
+// Reverse 反转字符串
+func Reverse(s string) string {
 	runes := []rune(s)
 	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
 		runes[i], runes[j] = runes[j], runes[i]
 	}
 	return string(runes)
+}
+
+// RsaEncryption RSA加密
+func RsaEncryption(plaintext string) (string, error) {
+	// 解码公钥
+	block, _ := pem.Decode([]byte(publicKeyPEM))
+	if block == nil {
+		return "", fmt.Errorf("failed to decode PEM block")
+	}
+
+	publicKeyInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return "", err
+	}
+
+	publicKey, ok := publicKeyInterface.(*rsa.PublicKey)
+	if !ok {
+		return "", fmt.Errorf("not a valid RSA public key")
+	}
+
+	// 加密
+	ciphertext, err := rsa.EncryptPKCS1v15(rand.Reader, publicKey, []byte(plaintext))
+	if err != nil {
+		return "", fmt.Errorf("failed to encrypt: %v", err)
+	}
+
+	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
 // RsaDecryption RSA解密
@@ -100,6 +145,33 @@ func RsaDecryption(encryptedText string) (string, error) {
 	}
 
 	return string(plaintext), nil
+}
+
+// AesEncryption AES加密
+func AesEncryption(plaintext, key, iv string) (string, error) {
+	// Convert key and iv to byte slices
+	keyBytes := []byte(key)
+	ivBytes := []byte(iv)
+	plaintextBytes := []byte(plaintext)
+
+	// Create AES cipher block
+	block, err := aes.NewCipher(keyBytes)
+	if err != nil {
+		return "", err
+	}
+
+	// Pad the plaintext to a multiple of the block size
+	blockSize := block.BlockSize()
+	plaintextBytes = pkcs7Padding(plaintextBytes, blockSize)
+
+	// Create a CBC encrypter and encrypt the data
+	ciphertext := make([]byte, len(plaintextBytes))
+	mode := cipher.NewCBCEncrypter(block, ivBytes)
+	mode.CryptBlocks(ciphertext, plaintextBytes)
+
+	// Encode the ciphertext in Base64
+	ciphertextBase64 := base64.StdEncoding.EncodeToString(ciphertext)
+	return ciphertextBase64, nil
 }
 
 // AesDecryption AES解密
@@ -160,7 +232,7 @@ func ResponseDecryption(encryptedText string) (string, error) {
 		return "", err
 	}
 	// 反转rsaKey得到rsaIV
-	rsaIV := reverse(rsaKey)
+	rsaIV := Reverse(rsaKey)
 
 	// AES解密
 	return AesDecryption(aesText, rsaKey, rsaIV)

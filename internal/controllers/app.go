@@ -14,6 +14,80 @@ import (
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
+// UserLogin 用户登录
+func UserLogin(c *gin.Context) {
+	type Login struct {
+		Phone    string `json:"phone" required:"true"`
+		Password string `json:"password" required:"true"`
+	}
+
+	p := new(Login)
+	if err := c.ShouldBindJSON(p); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	client := utils.New("")
+	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/users/login"
+
+	loginStruct := map[string]any{
+		"phone":    p.Phone,
+		"password": p.Password,
+		"enum":     0,
+		"symbol":   utils.RandomString(16),
+	}
+
+	rsaKey := utils.RandomString(16)
+	rsaIV := utils.Reverse(rsaKey)
+
+	// RSA加密
+	encryptedRSA, err := utils.RsaEncryption(rsaKey)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	// Struct 转 String
+	jsonStr, err := json.Marshal(loginStruct)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	// AES加密
+	encryptedAES, err := utils.AesEncryption(string(jsonStr), rsaKey, rsaIV)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	resp, err := client.Post(url, fmt.Sprintf("%s.%s", encryptedRSA, encryptedAES))
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	result, err := utils.ResponseDecryption(resp.String())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	c.String(http.StatusOK, result)
+}
+
 // UserInfo 用户信息
 func UserInfo(c *gin.Context) {
 	client := utils.New(c.Request.Header.Get("x-token"))

@@ -51,7 +51,12 @@ func (r *Request) Get(url string, params map[string]string) (*resty.Response, er
 		Get(url)
 }
 
-func (r *Request) Post(url string) (*resty.Response, error) {
+func (r *Request) Post(url string, body any) (*resty.Response, error) {
+	config.GinLOG.Debug("POST: " + url)
+	config.GinLOG.Debug(fmt.Sprintf("body: %v", body))
+
 	return r.client.R().
+		SetHeader("Content-Type", "application/json").
+		SetBody(body).
 		Post(url)
 }

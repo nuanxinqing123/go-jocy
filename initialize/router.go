@@ -32,6 +32,26 @@ func Routers() *gin.Engine {
 	// 允许跨域
 	Router.Use(cors.New(middleware.CorsConfig))
 
+	// 获取CDN地址
+	Router.Use(func(c *gin.Context) {
+		// 优先从上游Header中获取客户端IP
+		clientIP := c.Request.Header.Get("X-Real-IP")
+		if clientIP == "" {
+			clientIP = c.Request.Header.Get("X-Forwarded-For")
+		}
+		if clientIP == "" {
+			clientIP = c.Request.Header.Get("True-Client-IP")
+		}
+		if clientIP == "" {
+			clientIP = c.Request.Header.Get("Client-IP")
+		}
+		if clientIP == "" {
+			clientIP = c.Request.RemoteAddr
+		}
+		c.Set("x-client-ip", clientIP)
+		c.Next()
+	})
+
 	// (可选项)
 	// PID 限流基于实例的 CPU 使用率，通过拒绝一定比例的流量, 将实例的 CPU 使用率稳定在设定的阈值上。
 	// 地址: https://github.com/bytedance/pid_limits

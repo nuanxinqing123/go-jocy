@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	jsoniter "github.com/json-iterator/go"
@@ -29,7 +30,8 @@ func UserLogin(c *gin.Context) {
 		return
 	}
 
-	client := utils.New("")
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New("", clientIP.(string))
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/users/login"
 
 	loginStruct := map[string]any{
@@ -88,9 +90,35 @@ func UserLogin(c *gin.Context) {
 	c.String(http.StatusOK, result)
 }
 
+// UserLogout 用户退出登录
+func UserLogout(c *gin.Context) {
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/users/logout"
+
+	resp, err := client.Post(url, nil)
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	result, err := utils.ResponseDecryption(resp.String())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	c.String(http.StatusOK, result)
+}
+
 // UserInfo 用户信息
 func UserInfo(c *gin.Context) {
-	client := utils.New(c.Request.Header.Get("x-token"))
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/users/info"
 
 	resp, err := client.Get(url, nil)
@@ -114,8 +142,16 @@ func UserInfo(c *gin.Context) {
 
 // Channel 频道数据
 func Channel(c *gin.Context) {
-	client := utils.New(c.Request.Header.Get("x-token"))
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/channel?top-level=true"
+
+	kvName := "channel"
+	cache, err := config.GinCache.GetIFPresent(kvName)
+	if err == nil {
+		c.String(http.StatusOK, cache.(string))
+		return
+	}
 
 	resp, err := client.Get(url, nil)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
@@ -132,14 +168,25 @@ func Channel(c *gin.Context) {
 		})
 		return
 	}
+
+	// 写入缓存
+	_ = config.GinCache.SetWithExpire(kvName, result, time.Hour)
 
 	c.String(http.StatusOK, result)
 }
 
 // VideoList 视频列表
 func VideoList(c *gin.Context) {
-	client := utils.New(c.Request.Header.Get("x-token"))
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video/list?" + c.Request.URL.RawQuery
+
+	kvName := "video:list:" + c.Request.URL.RawQuery
+	cache, err := config.GinCache.GetIFPresent(kvName)
+	if err == nil {
+		c.String(http.StatusOK, cache.(string))
+		return
+	}
 
 	resp, err := client.Get(url, nil)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
@@ -156,14 +203,25 @@ func VideoList(c *gin.Context) {
 		})
 		return
 	}
+
+	// 写入缓存
+	_ = config.GinCache.SetWithExpire(kvName, result, time.Minute*10)
 
 	c.String(http.StatusOK, result)
 }
 
 // Banners 横幅数据
 func Banners(c *gin.Context) {
-	client := utils.New(c.Request.Header.Get("x-token"))
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/banners/0"
+
+	kvName := "banners"
+	cache, err := config.GinCache.GetIFPresent(kvName)
+	if err == nil {
+		c.String(http.StatusOK, cache.(string))
+		return
+	}
 
 	resp, err := client.Get(url, nil)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
@@ -180,14 +238,25 @@ func Banners(c *gin.Context) {
 		})
 		return
 	}
+
+	// 写入缓存
+	_ = config.GinCache.SetWithExpire(kvName, result, time.Minute*30)
 
 	c.String(http.StatusOK, result)
 }
 
 // VideoUpdateList 视频更新列表
 func VideoUpdateList(c *gin.Context) {
-	client := utils.New(c.Request.Header.Get("x-token"))
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video_update_list/" + c.Param("date") + "?" + c.Request.URL.RawQuery
+
+	kvName := "video_update_list:date:" + c.Param("date") + ":" + c.Request.URL.RawQuery
+	cache, err := config.GinCache.GetIFPresent(kvName)
+	if err == nil {
+		c.String(http.StatusOK, cache.(string))
+		return
+	}
 
 	resp, err := client.Get(url, nil)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
@@ -204,14 +273,25 @@ func VideoUpdateList(c *gin.Context) {
 		})
 		return
 	}
+
+	// 写入缓存
+	_ = config.GinCache.SetWithExpire(kvName, result, time.Minute*30)
 
 	c.String(http.StatusOK, result)
 }
 
 // VideoDetail 视频详情
 func VideoDetail(c *gin.Context) {
-	client := utils.New(c.Request.Header.Get("x-token"))
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video/detail?" + c.Request.URL.RawQuery
+
+	kvName := "video:detail:" + c.Request.URL.RawQuery
+	cache, err := config.GinCache.GetIFPresent(kvName)
+	if err == nil {
+		c.String(http.StatusOK, cache.(string))
+		return
+	}
 
 	resp, err := client.Get(url, nil)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
@@ -228,14 +308,25 @@ func VideoDetail(c *gin.Context) {
 		})
 		return
 	}
+
+	// 写入缓存
+	_ = config.GinCache.SetWithExpire(kvName, result, time.Hour)
 
 	c.String(http.StatusOK, result)
 }
 
 // VodCommentGetHitStop 获取视频热评
 func VodCommentGetHitStop(c *gin.Context) {
-	client := utils.New(c.Request.Header.Get("x-token"))
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/vod_comment/gethitstop?" + c.Request.URL.RawQuery
+
+	kvName := "vod_comment:gethitstop:" + c.Request.URL.RawQuery
+	cache, err := config.GinCache.GetIFPresent(kvName)
+	if err == nil {
+		c.String(http.StatusOK, cache.(string))
+		return
+	}
 
 	resp, err := client.Get(url, nil)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
@@ -252,14 +343,25 @@ func VodCommentGetHitStop(c *gin.Context) {
 		})
 		return
 	}
+
+	// 写入缓存
+	_ = config.GinCache.SetWithExpire(kvName, result, time.Hour)
 
 	c.String(http.StatusOK, result)
 }
 
 // VodCommentGetList 获取视频评论列表
 func VodCommentGetList(c *gin.Context) {
-	client := utils.New(c.Request.Header.Get("x-token"))
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/vod_comment/getlist?" + c.Request.URL.RawQuery
+
+	kvName := "vod_comment:getlist:" + c.Request.URL.RawQuery
+	cache, err := config.GinCache.GetIFPresent(kvName)
+	if err == nil {
+		c.String(http.StatusOK, cache.(string))
+		return
+	}
 
 	resp, err := client.Get(url, nil)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
@@ -276,14 +378,25 @@ func VodCommentGetList(c *gin.Context) {
 		})
 		return
 	}
+
+	// 写入缓存
+	_ = config.GinCache.SetWithExpire(kvName, result, time.Minute*10)
 
 	c.String(http.StatusOK, result)
 }
 
 // VodCommentGetSubList 获取视频子评论列表
 func VodCommentGetSubList(c *gin.Context) {
-	client := utils.New(c.Request.Header.Get("x-token"))
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/vod_comment/getsublist?" + c.Request.URL.RawQuery
+
+	kvName := "vod_comment:getsublist:" + c.Request.URL.RawQuery
+	cache, err := config.GinCache.GetIFPresent(kvName)
+	if err == nil {
+		c.String(http.StatusOK, cache.(string))
+		return
+	}
 
 	resp, err := client.Get(url, nil)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
@@ -301,12 +414,16 @@ func VodCommentGetSubList(c *gin.Context) {
 		return
 	}
 
+	// 写入缓存
+	_ = config.GinCache.SetWithExpire(kvName, result, time.Minute*10)
+
 	c.String(http.StatusOK, result)
 }
 
 // VideoPlay 获取视频播放线路
 func VideoPlay(c *gin.Context) {
-	client := utils.New(c.Request.Header.Get("x-token"))
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video/play?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
@@ -354,7 +471,8 @@ func VideoPlay(c *gin.Context) {
 
 // Danmu 弹幕数据
 func Danmu(c *gin.Context) {
-	client := utils.New(c.Request.Header.Get("x-token"))
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/danmu?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
@@ -378,7 +496,8 @@ func Danmu(c *gin.Context) {
 
 // VideoSearch 搜索视频
 func VideoSearch(c *gin.Context) {
-	client := utils.New(c.Request.Header.Get("x-token"))
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video/search?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
@@ -402,8 +521,9 @@ func VideoSearch(c *gin.Context) {
 
 // PlayResources 获取播放资源
 func PlayResources(c *gin.Context) {
+	clientIP, _ := c.Get("x-client-ip")
 	url := c.Query("url")
-	client := utils.New(c.Request.Header.Get("x-token"))
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
 
 	resp, err := client.Get(url, nil)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))

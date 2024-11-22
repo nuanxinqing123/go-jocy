@@ -14,7 +14,7 @@ type Request struct {
 	AuthToken string
 }
 
-func New(AuthToken string) *Request {
+func New(AuthToken, AuthIP string) *Request {
 	client := resty.New()
 
 	// 设置DeBug
@@ -25,6 +25,14 @@ func New(AuthToken string) *Request {
 	// 设置错误重试
 	client.SetRetryCount(5)
 	client.SetRetryWaitTime(1 * time.Second)
+
+	// 设置客户端IP
+	if AuthIP != "" {
+		client.SetHeaderVerbatim("X-Forwarded-For", AuthIP)
+		client.SetHeaderVerbatim("X-Real-IP", AuthIP)
+		client.SetHeaderVerbatim("True-Client-IP", AuthIP)
+		client.SetHeaderVerbatim("Client-IP", AuthIP)
+	}
 
 	// 设置请求头
 	client.SetHeaderVerbatim("User-Agent", "Dart/2.17 (dart:io)")

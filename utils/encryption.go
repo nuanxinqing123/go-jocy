@@ -19,6 +19,7 @@ import (
 	"github.com/go-resty/resty/v2"
 	jsoniter "github.com/json-iterator/go"
 
+	"go-jocy/config"
 	"go-jocy/internal/model"
 )
 
@@ -289,4 +290,25 @@ func DecryptPlayUrl(source string) (any, error) {
 	}
 	fmt.Println(decrypted)
 	return pu, nil
+}
+
+// EncryptRequests 加密请求数据
+func EncryptRequests(data string) (string, error) {
+	config.GinLOG.Debug(fmt.Sprintf("加密请求数据: %s", data))
+	rsaKey := RandomString(16)
+	rsaIV := Reverse(rsaKey)
+
+	// RSA加密
+	encryptedRSA, err := RsaEncryption(rsaKey)
+	if err != nil {
+		return "", err
+	}
+
+	// AES加密
+	encryptedAES, err := AesEncryption(data, rsaKey, rsaIV)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%s.%s", encryptedRSA, encryptedAES), nil
 }

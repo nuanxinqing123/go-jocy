@@ -15,6 +15,189 @@ import (
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
+// UserCaptcha 用户验证
+func UserCaptcha(c *gin.Context) {
+	type Captcha struct {
+		Type string `json:"type" required:"true"`
+	}
+
+	p := new(Captcha)
+	if err := c.ShouldBindJSON(p); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New("", clientIP.(string))
+	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/users/captcha"
+
+	// Struct 转 String
+	jsonStr, err := json.Marshal(p)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	// 加密参数
+	enText, err := utils.EncryptRequests(string(jsonStr))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	resp, err := client.Post(url, enText)
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	result, err := utils.ResponseDecryption(resp.String())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	c.String(http.StatusOK, result)
+}
+
+// UserSmsCode 发送验证码
+func UserSmsCode(c *gin.Context) {
+	type SmsCode struct {
+		Phone string `json:"phone" required:"true"`
+		Type  string `json:"type" required:"true"`
+		UUID  string `json:"uuid" required:"true"`
+		Dots  string `json:"dots" required:"true"`
+	}
+
+	p := new(SmsCode)
+	if err := c.ShouldBindJSON(p); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New("", clientIP.(string))
+	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/users/smscode"
+
+	// Struct 转 String
+	jsonStr, err := json.Marshal(map[string]any{
+		"phone": p.Phone,
+		"type":  p.Type,
+		"enum":  0,
+		"uuid":  p.UUID,
+		"dots":  p.Dots,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	// 加密参数
+	enText, err := utils.EncryptRequests(string(jsonStr))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	resp, err := client.Post(url, enText)
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	result, err := utils.ResponseDecryption(resp.String())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	c.String(http.StatusOK, result)
+}
+
+// UserRegister 用户注册
+func UserRegister(c *gin.Context) {
+	type Register struct {
+		Phone    string `json:"phone" required:"true"`
+		Password string `json:"password" required:"true"`
+		SmsCode  string `json:"sms_code" required:"true"`
+		UserName string `json:"user_name" required:"true"`
+	}
+
+	p := new(Register)
+	if err := c.ShouldBindJSON(p); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New("", clientIP.(string))
+	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/users/register"
+
+	// Struct 转 String
+	jsonStr, err := json.Marshal(map[string]any{
+		"phone":     p.Phone,
+		"password":  p.Password,
+		"sms_code":  p.SmsCode,
+		"user_name": p.UserName,
+		"enum":      0,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	// 加密参数
+	enText, err := utils.EncryptRequests(string(jsonStr))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	resp, err := client.Post(url, enText)
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	result, err := utils.ResponseDecryption(resp.String())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	c.String(http.StatusOK, result)
+}
+
 // UserLogin 用户登录
 func UserLogin(c *gin.Context) {
 	type Login struct {
@@ -34,18 +217,13 @@ func UserLogin(c *gin.Context) {
 	client := utils.New("", clientIP.(string))
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/users/login"
 
-	loginStruct := map[string]any{
+	// Struct 转 String
+	jsonStr, err := json.Marshal(map[string]any{
 		"phone":    p.Phone,
 		"password": p.Password,
 		"enum":     0,
 		"symbol":   utils.RandomString(16),
-	}
-
-	rsaKey := utils.RandomString(16)
-	rsaIV := utils.Reverse(rsaKey)
-
-	// RSA加密
-	encryptedRSA, err := utils.RsaEncryption(rsaKey)
+	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
@@ -53,8 +231,8 @@ func UserLogin(c *gin.Context) {
 		return
 	}
 
-	// Struct 转 String
-	jsonStr, err := json.Marshal(loginStruct)
+	// 加密参数
+	enText, err := utils.EncryptRequests(string(jsonStr))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
@@ -62,16 +240,7 @@ func UserLogin(c *gin.Context) {
 		return
 	}
 
-	// AES加密
-	encryptedAES, err := utils.AesEncryption(string(jsonStr), rsaKey, rsaIV)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"msg": err.Error(),
-		})
-		return
-	}
-
-	resp, err := client.Post(url, fmt.Sprintf("%s.%s", encryptedRSA, encryptedAES))
+	resp, err := client.Post(url, enText)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

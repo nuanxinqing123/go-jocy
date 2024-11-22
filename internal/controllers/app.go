@@ -309,6 +309,56 @@ func UserInfo(c *gin.Context) {
 	c.String(http.StatusOK, result)
 }
 
+// MessageBox 消息通知
+func MessageBox(c *gin.Context) {
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/messagebox"
+
+	resp, err := client.Get(url, nil)
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	result, err := utils.ResponseDecryption(resp.String())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	c.String(http.StatusOK, result)
+}
+
+// MessageBoxType 获取消息通知
+func MessageBoxType(c *gin.Context) {
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/messagebox/" + c.Param("type") + "?" + c.Request.URL.RawQuery
+
+	resp, err := client.Get(url, nil)
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	result, err := utils.ResponseDecryption(resp.String())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	c.String(http.StatusOK, result)
+}
+
 // Channel 频道数据
 func Channel(c *gin.Context) {
 	clientIP, _ := c.Get("x-client-ip")
@@ -668,6 +718,31 @@ func VideoSearch(c *gin.Context) {
 	clientIP, _ := c.Get("x-client-ip")
 	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video/search?" + c.Request.URL.RawQuery
+
+	resp, err := client.Get(url, nil)
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	result, err := utils.ResponseDecryption(resp.String())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	c.String(http.StatusOK, result)
+}
+
+// VideoKey 视频预搜索
+func VideoKey(c *gin.Context) {
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video/key?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))

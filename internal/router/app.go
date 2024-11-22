@@ -14,22 +14,45 @@ func InitRouterApp(r *gin.RouterGroup) {
 	r.POST("/users/smscode", controllers.UserSmsCode)
 	// 注册
 	r.POST("/users/register", controllers.UserRegister)
-
+	// 登录
 	r.POST("/users/login", controllers.UserLogin)
+	// 退出
 	r.POST("/users/logout", controllers.UserLogout)
+	// 用户信息
 	r.GET("/users/info", controllers.UserInfo)
+	// 消息通知
+	r.GET("/messagebox", controllers.MessageBox)
+	// 获取消息通知
+	r.GET("/messagebox/:type", controllers.MessageBoxType)
+	// 频道
 	r.GET("/channel", controllers.Channel)
+	// 视频
 	r.GET("/video/list", controllers.VideoList)
+	// 横幅
 	r.GET("/banners", controllers.Banners)
+	// 视频更新
 	r.GET("/video_update_list/:date", controllers.VideoUpdateList)
+	// 视频详情
 	r.GET("/video/detail", controllers.VideoDetail)
+	// 视频热评
 	r.GET("/vod_comment/gethitstop", controllers.VodCommentGetHitStop)
+	// 视频评论
 	r.GET("/vod_comment/getlist", controllers.VodCommentGetList)
+	// 视频子评论
 	r.GET("/vod_comment/getsublist", controllers.VodCommentGetSubList)
+	// 视频播放
 	r.GET("/video/play", controllers.VideoPlay)
+	// 弹幕
 	r.GET("/danmu", controllers.Danmu)
+	// 搜索
 	r.GET("/video/search", controllers.VideoSearch)
-
+	// 预搜索
+	r.GET("/video/key", controllers.VideoKey)
 	// 获取播放资源
 	r.GET("/play/resources", controllers.PlayResources)
+	// todo 观看历史
+	// todo 我的收藏
+	// todo 我的收藏-创建
+	// todo 我的收藏-删除
+	// todo 发送弹幕
 }

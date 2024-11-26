@@ -49,7 +49,7 @@ func InitRouterApp(r *gin.RouterGroup) {
 	// 预搜索
 	r.GET("/video/key", controllers.VideoKey)
 	// 获取播放资源
-	r.GET("/play/resources", controllers.PlayResources)
+	r.POST("/play/resources", controllers.PlayResources)
 	// todo 观看历史
 	// todo 我的收藏
 	// todo 我的收藏-创建

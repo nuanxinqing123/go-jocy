@@ -773,11 +773,22 @@ func VideoKey(c *gin.Context) {
 
 // PlayResources 获取播放资源
 func PlayResources(c *gin.Context) {
+	type Url struct {
+		Url string `json:"url" required:"true"`
+	}
+
+	p := new(Url)
+	if err := c.ShouldBindJSON(p); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
 	clientIP, _ := c.Get("x-client-ip")
-	url := c.Query("url")
 	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
 
-	resp, err := client.Get(url, nil)
+	resp, err := client.Get(p.Url, nil)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

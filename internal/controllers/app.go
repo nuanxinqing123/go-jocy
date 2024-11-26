@@ -653,17 +653,24 @@ func VideoPlay(c *gin.Context) {
 		})
 		return
 	}
+
+	// 解密数据
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
+		config.GinLOG.Error(fmt.Sprintf("Failed to deserialize data: %s", result))
+		config.GinLOG.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("Response: %s", result))
 
 	// 序列化数据
 	var res model.Play
 	if err = json.Unmarshal([]byte(result), &res); err != nil {
+		config.GinLOG.Error(fmt.Sprintf("Failed to deserialize data: %s", result))
+		config.GinLOG.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
@@ -672,12 +679,14 @@ func VideoPlay(c *gin.Context) {
 
 	if len(res.Data) == 0 {
 		config.GinLOG.Warn(fmt.Sprintf("Failed to fetch data: %s", result))
-		c.JSON(http.StatusInternalServerError, result)
+		c.String(http.StatusInternalServerError, result)
 		return
 	}
 
 	playURL, err := utils.DecryptPlayUrl(res.Data[0].Url)
 	if err != nil {
+		config.GinLOG.Error(fmt.Sprintf("Failed to deserialize data: %s", playURL))
+		config.GinLOG.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})

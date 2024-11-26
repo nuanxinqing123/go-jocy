@@ -282,13 +282,13 @@ func DecryptPlayUrl(source string) (any, error) {
 	if err != nil {
 		return nil, err
 	}
+	config.GinLOG.Debug(decrypted)
 
 	var pu model.PlayURL
 	err = json.Unmarshal([]byte(decrypted), &pu)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(decrypted)
 	return pu, nil
 }
 

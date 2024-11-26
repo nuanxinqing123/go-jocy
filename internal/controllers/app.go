@@ -671,9 +671,8 @@ func VideoPlay(c *gin.Context) {
 	}
 
 	if len(res.Data) == 0 {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"msg": "Failed to fetch data",
-		})
+		config.GinLOG.Warn(fmt.Sprintf("Failed to fetch data: %s", result))
+		c.JSON(http.StatusInternalServerError, result)
 		return
 	}
 

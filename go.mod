@@ -6,6 +6,7 @@ toolchain go1.22.9
 
 require (
 	github.com/bluele/gcache v0.0.2
+	github.com/elazarl/go-bindata-assetfs v1.0.1
 	github.com/fsnotify/fsnotify v1.8.0
 	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/gin v1.10.0

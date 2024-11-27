@@ -159,7 +159,7 @@ func UserRegister(c *gin.Context) {
 	jsonStr, err := json.Marshal(map[string]any{
 		"phone":     p.Phone,
 		"password":  p.Password,
-		"sms_code":  p.SmsCode,
+		"smscode":   p.SmsCode,
 		"user_name": p.UserName,
 		"enum":      0,
 	})

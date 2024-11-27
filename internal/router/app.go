@@ -52,6 +52,8 @@ func InitRouterApp(r *gin.RouterGroup) {
 	r.POST("/play/resources", controllers.PlayResources)
 	// 观看历史
 	r.GET("/history", controllers.History)
+	// 上传历史
+	r.POST("/history", controllers.HistoryUpload)
 	// 我的收藏
 	r.GET("/collect", controllers.Collect)
 	// 我的收藏-创建

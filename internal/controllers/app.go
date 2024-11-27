@@ -825,6 +825,69 @@ func History(c *gin.Context) {
 	c.String(http.StatusOK, result)
 }
 
+// HistoryUpload 上传历史记录
+func HistoryUpload(c *gin.Context) {
+	type UploadHistory struct {
+		Vid       int    `json:"vid" required:"true"`
+		Play      string `json:"play" required:"true"`
+		Part      string `json:"part" required:"true"`
+		TimePoint int64  `json:"time_point" required:"true"`
+	}
+
+	p := new(UploadHistory)
+	if err := c.ShouldBindJSON(p); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/history"
+
+	// Struct 转 String
+	jsonStr, err := json.Marshal(map[string]any{
+		"vid":        p.Vid,
+		"play":       p.Play,
+		"part":       p.Part,
+		"time_point": p.TimePoint,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	// 加密参数
+	enText, err := utils.EncryptRequests(string(jsonStr))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	resp, err := client.Post(url, enText)
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	result, err := utils.ResponseDecryption(resp.String())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	c.String(http.StatusOK, result)
+}
+
 // Collect 我的收藏
 func Collect(c *gin.Context) {
 	clientIP, _ := c.Get("x-client-ip")

@@ -68,3 +68,13 @@ func (r *Request) Post(url string, body any) (*resty.Response, error) {
 		SetBody(body).
 		Post(url)
 }
+
+func (r *Request) Delete(url string, body any) (*resty.Response, error) {
+	config.GinLOG.Debug("DELETE: " + url)
+	config.GinLOG.Debug(fmt.Sprintf("body: %v", body))
+
+	return r.client.R().
+		SetHeader("Content-Type", "application/json").
+		SetBody(body).
+		Delete(url)
+}

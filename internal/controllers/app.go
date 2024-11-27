@@ -799,3 +799,167 @@ func PlayResources(c *gin.Context) {
 
 	c.Data(http.StatusOK, resp.Header().Get("Content-Type"), resp.Body())
 }
+
+// History 历史记录
+func History(c *gin.Context) {
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/history?" + c.Request.URL.RawQuery
+
+	resp, err := client.Get(url, nil)
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	result, err := utils.ResponseDecryption(resp.String())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	c.String(http.StatusOK, result)
+}
+
+// Collect 我的收藏
+func Collect(c *gin.Context) {
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/collect?" + c.Request.URL.RawQuery
+
+	resp, err := client.Get(url, nil)
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	result, err := utils.ResponseDecryption(resp.String())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	c.String(http.StatusOK, result)
+}
+
+// CollectCreate 创建收藏
+func CollectCreate(c *gin.Context) {
+	type CreateCollect struct {
+		Vid int `json:"vid" required:"true"`
+	}
+
+	p := new(CreateCollect)
+	if err := c.ShouldBindJSON(p); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/collect"
+
+	// Struct 转 String
+	jsonStr, err := json.Marshal(map[string]int{
+		"vid": p.Vid,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	// 加密参数
+	enText, err := utils.EncryptRequests(string(jsonStr))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	resp, err := client.Post(url, enText)
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	result, err := utils.ResponseDecryption(resp.String())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	c.String(http.StatusOK, result)
+}
+
+// CollectDelete 删除收藏
+func CollectDelete(c *gin.Context) {
+	type CreateCollect struct {
+		Vid int `json:"vid" required:"true"`
+	}
+
+	p := new(CreateCollect)
+	if err := c.ShouldBindJSON(p); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	clientIP, _ := c.Get("x-client-ip")
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/collect"
+
+	// Struct 转 String
+	jsonStr, err := json.Marshal(map[string]int{
+		"vid": p.Vid,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	// 加密参数
+	enText, err := utils.EncryptRequests(string(jsonStr))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	resp, err := client.Delete(url, enText)
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	result, err := utils.ResponseDecryption(resp.String())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	c.String(http.StatusOK, result)
+}

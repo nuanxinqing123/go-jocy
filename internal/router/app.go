@@ -50,9 +50,14 @@ func InitRouterApp(r *gin.RouterGroup) {
 	r.GET("/video/key", controllers.VideoKey)
 	// 获取播放资源
 	r.POST("/play/resources", controllers.PlayResources)
-	// todo 观看历史
-	// todo 我的收藏
-	// todo 我的收藏-创建
-	// todo 我的收藏-删除
+	// 观看历史
+	r.GET("/history", controllers.History)
+	// 我的收藏
+	r.GET("/collect", controllers.Collect)
+	// 我的收藏-创建
+	r.POST("/collect", controllers.CollectCreate)
+	// 我的收藏-删除
+	r.DELETE("/collect", controllers.CollectDelete)
 	// todo 发送弹幕
+	// todo 发送评论
 }

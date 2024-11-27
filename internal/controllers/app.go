@@ -389,7 +389,9 @@ func Channel(c *gin.Context) {
 	}
 
 	// 写入缓存
-	_ = config.GinCache.SetWithExpire(kvName, result, time.Hour)
+	if resp.StatusCode() == http.StatusOK {
+		_ = config.GinCache.SetWithExpire(kvName, result, time.Hour)
+	}
 
 	c.String(http.StatusOK, result)
 }
@@ -424,7 +426,9 @@ func VideoList(c *gin.Context) {
 	}
 
 	// 写入缓存
-	_ = config.GinCache.SetWithExpire(kvName, result, time.Minute*10)
+	if resp.StatusCode() == http.StatusOK {
+		_ = config.GinCache.SetWithExpire(kvName, result, time.Minute*10)
+	}
 
 	c.String(http.StatusOK, result)
 }
@@ -459,7 +463,9 @@ func Banners(c *gin.Context) {
 	}
 
 	// 写入缓存
-	_ = config.GinCache.SetWithExpire(kvName, result, time.Minute*30)
+	if resp.StatusCode() == http.StatusOK {
+		_ = config.GinCache.SetWithExpire(kvName, result, time.Minute*30)
+	}
 
 	c.String(http.StatusOK, result)
 }
@@ -494,7 +500,9 @@ func VideoUpdateList(c *gin.Context) {
 	}
 
 	// 写入缓存
-	_ = config.GinCache.SetWithExpire(kvName, result, time.Minute*30)
+	if resp.StatusCode() == http.StatusOK {
+		_ = config.GinCache.SetWithExpire(kvName, result, time.Minute*30)
+	}
 
 	c.String(http.StatusOK, result)
 }
@@ -529,7 +537,9 @@ func VideoDetail(c *gin.Context) {
 	}
 
 	// 写入缓存
-	_ = config.GinCache.SetWithExpire(kvName, result, time.Hour)
+	if resp.StatusCode() == http.StatusOK {
+		_ = config.GinCache.SetWithExpire(kvName, result, time.Hour)
+	}
 
 	c.String(http.StatusOK, result)
 }
@@ -564,7 +574,9 @@ func VodCommentGetHitStop(c *gin.Context) {
 	}
 
 	// 写入缓存
-	_ = config.GinCache.SetWithExpire(kvName, result, time.Hour)
+	if resp.StatusCode() == http.StatusOK {
+		_ = config.GinCache.SetWithExpire(kvName, result, time.Hour)
+	}
 
 	c.String(http.StatusOK, result)
 }
@@ -599,7 +611,9 @@ func VodCommentGetList(c *gin.Context) {
 	}
 
 	// 写入缓存
-	_ = config.GinCache.SetWithExpire(kvName, result, time.Minute*10)
+	if resp.StatusCode() == http.StatusOK {
+		_ = config.GinCache.SetWithExpire(kvName, result, time.Minute*10)
+	}
 
 	c.String(http.StatusOK, result)
 }
@@ -634,7 +648,9 @@ func VodCommentGetSubList(c *gin.Context) {
 	}
 
 	// 写入缓存
-	_ = config.GinCache.SetWithExpire(kvName, result, time.Minute*10)
+	if resp.StatusCode() == http.StatusOK {
+		_ = config.GinCache.SetWithExpire(kvName, result, time.Minute*10)
+	}
 
 	c.String(http.StatusOK, result)
 }

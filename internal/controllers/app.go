@@ -726,15 +726,8 @@ func Danmu(c *gin.Context) {
 		})
 		return
 	}
-	result, err := utils.ResponseDecryption(resp.String())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"msg": err.Error(),
-		})
-		return
-	}
 
-	c.String(http.StatusOK, result)
+	c.String(http.StatusOK, resp.String())
 }
 
 // VideoSearch 搜索视频

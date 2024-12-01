@@ -437,9 +437,9 @@ func VideoList(c *gin.Context) {
 func Banners(c *gin.Context) {
 	clientIP, _ := c.Get("x-client-ip")
 	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
-	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/banners/0"
+	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/banners/" + c.Param("id")
 
-	kvName := "banners"
+	kvName := "banners/" + c.Param("id")
 	cache, err := config.GinCache.GetIFPresent(kvName)
 	if err == nil {
 		c.String(http.StatusOK, cache.(string))

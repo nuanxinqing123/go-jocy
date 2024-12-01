@@ -29,7 +29,7 @@ func InitRouterApp(r *gin.RouterGroup) {
 	// 视频
 	r.GET("/video/list", controllers.VideoList)
 	// 横幅
-	r.GET("/banners", controllers.Banners)
+	r.GET("/banners/:id", controllers.Banners)
 	// 视频更新
 	r.GET("/video_update_list/:date", controllers.VideoUpdateList)
 	// 视频详情

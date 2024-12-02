@@ -2,11 +2,13 @@ package middleware
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 
+	"go-jocy/config"
 	"go-jocy/utils"
 )
 
@@ -42,6 +44,7 @@ func Auth() gin.HandlerFunc {
 
 		// 判断签名是否存在
 		if ts == "" || sign == "" {
+			config.GinLOG.Debug("签名不存在")
 			c.JSON(403, gin.H{
 				"msg": "禁止未经授权访问",
 			})
@@ -49,18 +52,22 @@ func Auth() gin.HandlerFunc {
 			return
 		}
 
-		// String时间戳转换为Unix时间戳
-		t, err := time.Parse("2006-01-02 15:04:05", ts)
+		stInt, err := strconv.Atoi(ts)
 		if err != nil {
+			config.GinLOG.Debug("时间戳转换错误")
 			c.JSON(403, gin.H{
 				"msg": "禁止未经授权访问",
 			})
 			c.Abort()
 			return
 		}
+
+		// Int时间戳转换为Unix时间戳
+		t := time.Unix(int64(stInt), 0)
 
 		// 校验时间戳[是否在UTC+8时区的+-10秒以内]
 		if CheckIfWithinUTC8(t) == false {
+			config.GinLOG.Debug("时间戳不在UTC+8时区的+-10秒以内")
 			c.JSON(403, gin.H{
 				"msg": "禁止未经授权访问",
 			})
@@ -71,6 +78,7 @@ func Auth() gin.HandlerFunc {
 		// 从Sign中使用[.]分割
 		signs := strings.Split(sign, ".")
 		if len(signs) < 2 {
+			config.GinLOG.Debug("分割失败")
 			c.JSON(403, gin.H{
 				"msg": "禁止未经授权访问",
 			})
@@ -81,10 +89,11 @@ func Auth() gin.HandlerFunc {
 		rs := signs[1] // 反转随机字符
 
 		// 生成签名
-		sn := fmt.Sprintf("jocy&%s&%d&%s", s, t.Unix(), utils.ReverseString(rs))
+		sn := fmt.Sprintf("jocy&%s&%s", ts, utils.ReverseString(rs))
 
 		// 判断签名是否一致
 		if utils.MD5Encryption(sn) != s {
+			config.GinLOG.Debug("签名不一致")
 			c.JSON(403, gin.H{
 				"msg": "禁止未经授权访问",
 			})

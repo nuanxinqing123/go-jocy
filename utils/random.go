@@ -1,7 +1,10 @@
 package utils
 
 import (
+	"errors"
+	"math"
 	"math/rand"
+	"strconv"
 	"time"
 )
 
@@ -37,4 +40,34 @@ func ReverseString(s string) string {
 		runes[i], runes[j] = runes[j], runes[i]
 	}
 	return string(runes)
+}
+
+// RandomGetElements 从切片中随机获取指定数量的元素
+func RandomGetElements(urls []string) string {
+	// 检查URL列表是否为空
+	if len(urls) == 0 {
+		return ""
+	}
+	// 初始化随机数种子
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+	// 生成随机索引
+	randomIndex := rand.Intn(len(urls))
+	return urls[randomIndex]
+}
+
+// BindUserToUrl 绑定用户ID到URL地址
+func BindUserToUrl(userId string, urls []string) (string, error) {
+	// 检查URL列表是否为空
+	if len(urls) == 0 {
+		return "", errors.New("URL列表不能为空")
+	}
+	// 转化为整数
+	id, err := strconv.Atoi(userId)
+	if err != nil {
+		return "", errors.New("用户ID必须是一个有效的数字字符串")
+	}
+
+	// 计算索引，取绝对值防止负数
+	index := int(math.Abs(float64(id))) % len(urls)
+	return urls[index], nil
 }

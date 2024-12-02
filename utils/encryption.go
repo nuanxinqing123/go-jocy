@@ -83,15 +83,6 @@ func pkcs7Unpad(data []byte) ([]byte, error) {
 	return data[:length-padding], nil
 }
 
-// Reverse 反转字符串
-func Reverse(s string) string {
-	runes := []rune(s)
-	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
-		runes[i], runes[j] = runes[j], runes[i]
-	}
-	return string(runes)
-}
-
 // RsaEncryption RSA加密
 func RsaEncryption(plaintext string) (string, error) {
 	// 解码公钥
@@ -233,7 +224,7 @@ func ResponseDecryption(encryptedText string) (string, error) {
 		return "", err
 	}
 	// 反转rsaKey得到rsaIV
-	rsaIV := Reverse(rsaKey)
+	rsaIV := ReverseString(rsaKey)
 
 	// AES解密
 	return AesDecryption(aesText, rsaKey, rsaIV)
@@ -296,7 +287,7 @@ func DecryptPlayUrl(source string) (any, error) {
 func EncryptRequests(data string) (string, error) {
 	config.GinLOG.Debug(fmt.Sprintf("加密请求数据: %s", data))
 	rsaKey := RandomString(16)
-	rsaIV := Reverse(rsaKey)
+	rsaIV := ReverseString(rsaKey)
 
 	// RSA加密
 	encryptedRSA, err := RsaEncryption(rsaKey)

@@ -8,6 +8,8 @@ import (
 
 // InitRouterApp Api
 func InitRouterApp(r *gin.RouterGroup) {
+	// 随机头像
+	r.GET("/users/avatar", controllers.UserAvatar)
 	// 验证码
 	r.POST("/users/captcha", controllers.UserCaptcha)
 	// 发送验证码

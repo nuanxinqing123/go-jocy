@@ -15,6 +15,31 @@ import (
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
+// UserAvatar 随机头像
+func UserAvatar(c *gin.Context) {
+	// 获取Query参数中的ID
+	id := c.Query("id")
+
+	// 判断ID是否存在
+	var url string
+	var err error
+	if id == "" {
+		// 未传递ID, 从列表中随机获取一个元素
+		url = utils.RandomGetElements(model.AvatarURL)
+	} else {
+		// 传递ID
+		url, err = utils.BindUserToUrl(id, model.AvatarURL)
+		if err != nil {
+			config.GinLOG.Warn(err.Error())
+			url = utils.RandomGetElements(model.AvatarURL)
+		}
+	}
+
+	// 重定向
+	config.GinLOG.Debug(fmt.Sprintf("Redirect: %s", url))
+	c.Redirect(http.StatusMovedPermanently, url)
+}
+
 // UserCaptcha 用户验证
 func UserCaptcha(c *gin.Context) {
 	type Captcha struct {

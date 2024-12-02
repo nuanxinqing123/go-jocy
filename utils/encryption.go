@@ -211,6 +211,12 @@ func AesDecryption(encryptedText, key, iv string) (string, error) {
 	return string(plaintext), nil
 }
 
+// MD5Encryption MD5加密
+func MD5Encryption(plaintext string) string {
+	hash := md5.Sum([]byte(plaintext))
+	return hex.EncodeToString(hash[:])
+}
+
 // ResponseDecryption 响应解密
 func ResponseDecryption(encryptedText string) (string, error) {
 	// 根据[.]分割字符串

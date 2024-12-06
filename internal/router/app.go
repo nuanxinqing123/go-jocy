@@ -13,7 +13,8 @@ func InitRouterApp(r *gin.RouterGroup) {
 	r.GET("/users/avatar", controllers.UserAvatar)
 
 	auth := r.Group("")
-	auth.Use(middleware.Auth())
+	auth.Use(middleware.RateLimitMiddleware()) // 限流
+	//auth.Use(middleware.Auth())                  // 鉴权
 	// 验证码
 	auth.POST("/users/captcha", controllers.UserCaptcha)
 	// 发送验证码

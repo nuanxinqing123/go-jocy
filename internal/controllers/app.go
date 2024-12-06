@@ -54,8 +54,8 @@ func UserCaptcha(c *gin.Context) {
 		return
 	}
 
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New("", clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New("", clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/users/captcha"
 
 	// Struct 转 String
@@ -112,8 +112,8 @@ func UserSmsCode(c *gin.Context) {
 		return
 	}
 
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New("", clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New("", clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/users/smscode"
 
 	// Struct 转 String
@@ -176,8 +176,8 @@ func UserRegister(c *gin.Context) {
 		return
 	}
 
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New("", clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New("", clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/users/register"
 
 	// Struct 转 String
@@ -238,8 +238,8 @@ func UserLogin(c *gin.Context) {
 		return
 	}
 
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New("", clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New("", clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/users/login"
 
 	// Struct 转 String
@@ -286,8 +286,8 @@ func UserLogin(c *gin.Context) {
 
 // UserLogout 用户退出登录
 func UserLogout(c *gin.Context) {
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/users/logout"
 
 	resp, err := client.Post(url, nil)
@@ -311,8 +311,8 @@ func UserLogout(c *gin.Context) {
 
 // UserInfo 用户信息
 func UserInfo(c *gin.Context) {
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/users/info"
 
 	resp, err := client.Get(url, nil)
@@ -336,8 +336,8 @@ func UserInfo(c *gin.Context) {
 
 // MessageBox 消息通知
 func MessageBox(c *gin.Context) {
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/messagebox"
 
 	resp, err := client.Get(url, nil)
@@ -361,8 +361,8 @@ func MessageBox(c *gin.Context) {
 
 // MessageBoxType 获取消息通知
 func MessageBoxType(c *gin.Context) {
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/messagebox/" + c.Param("type") + "?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
@@ -386,8 +386,8 @@ func MessageBoxType(c *gin.Context) {
 
 // Channel 频道数据
 func Channel(c *gin.Context) {
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/channel?top-level=true"
 
 	kvName := "channel"
@@ -423,8 +423,8 @@ func Channel(c *gin.Context) {
 
 // VideoList 视频列表
 func VideoList(c *gin.Context) {
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video/list?" + c.Request.URL.RawQuery
 
 	kvName := "video:list:" + c.Request.URL.RawQuery
@@ -460,8 +460,8 @@ func VideoList(c *gin.Context) {
 
 // Banners 横幅数据
 func Banners(c *gin.Context) {
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/banners/" + c.Param("id")
 
 	kvName := "banners/" + c.Param("id")
@@ -497,8 +497,8 @@ func Banners(c *gin.Context) {
 
 // VideoUpdateList 视频更新列表
 func VideoUpdateList(c *gin.Context) {
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video_update_list/" + c.Param("date") + "?" + c.Request.URL.RawQuery
 
 	kvName := "video_update_list:date:" + c.Param("date") + ":" + c.Request.URL.RawQuery
@@ -534,8 +534,8 @@ func VideoUpdateList(c *gin.Context) {
 
 // VideoDetail 视频详情
 func VideoDetail(c *gin.Context) {
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video/detail?" + c.Request.URL.RawQuery
 
 	kvName := "video:detail:" + c.Request.URL.RawQuery
@@ -571,8 +571,8 @@ func VideoDetail(c *gin.Context) {
 
 // VodCommentGetHitStop 获取视频热评
 func VodCommentGetHitStop(c *gin.Context) {
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/vod_comment/gethitstop?" + c.Request.URL.RawQuery
 
 	kvName := "vod_comment:gethitstop:" + c.Request.URL.RawQuery
@@ -608,8 +608,8 @@ func VodCommentGetHitStop(c *gin.Context) {
 
 // VodCommentGetList 获取视频评论列表
 func VodCommentGetList(c *gin.Context) {
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/vod_comment/getlist?" + c.Request.URL.RawQuery
 
 	kvName := "vod_comment:getlist:" + c.Request.URL.RawQuery
@@ -645,8 +645,8 @@ func VodCommentGetList(c *gin.Context) {
 
 // VodCommentGetSubList 获取视频子评论列表
 func VodCommentGetSubList(c *gin.Context) {
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/vod_comment/getsublist?" + c.Request.URL.RawQuery
 
 	kvName := "vod_comment:getsublist:" + c.Request.URL.RawQuery
@@ -682,8 +682,8 @@ func VodCommentGetSubList(c *gin.Context) {
 
 // VideoPlay 获取视频播放线路
 func VideoPlay(c *gin.Context) {
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video/play?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
@@ -739,8 +739,8 @@ func VideoPlay(c *gin.Context) {
 
 // Danmu 弹幕数据
 func Danmu(c *gin.Context) {
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/danmu?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
@@ -757,8 +757,8 @@ func Danmu(c *gin.Context) {
 
 // VideoSearch 搜索视频
 func VideoSearch(c *gin.Context) {
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video/search?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
@@ -782,8 +782,8 @@ func VideoSearch(c *gin.Context) {
 
 // VideoKey 视频预搜索
 func VideoKey(c *gin.Context) {
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video/key?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
@@ -819,8 +819,8 @@ func PlayResources(c *gin.Context) {
 		return
 	}
 
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 
 	resp, err := client.Get(p.Url, nil)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
@@ -836,8 +836,8 @@ func PlayResources(c *gin.Context) {
 
 // History 历史记录
 func History(c *gin.Context) {
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/history?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
@@ -876,8 +876,8 @@ func HistoryUpload(c *gin.Context) {
 		return
 	}
 
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/history"
 
 	// Struct 转 String
@@ -924,8 +924,8 @@ func HistoryUpload(c *gin.Context) {
 
 // Collect 我的收藏
 func Collect(c *gin.Context) {
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/collect?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
@@ -961,8 +961,8 @@ func CollectCreate(c *gin.Context) {
 		return
 	}
 
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/collect"
 
 	// Struct 转 String
@@ -1018,8 +1018,8 @@ func CollectDelete(c *gin.Context) {
 		return
 	}
 
-	clientIP, _ := c.Get("x-client-ip")
-	client := utils.New(c.Request.Header.Get("x-token"), clientIP.(string))
+	clientIP := c.ClientIP()
+	client := utils.New(c.Request.Header.Get("x-token"), clientIP)
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/collect"
 
 	// Struct 转 String

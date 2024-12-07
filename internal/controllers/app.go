@@ -678,7 +678,6 @@ func VodCommentGetSubList(c *gin.Context) {
 
 // VideoPlay 获取视频播放线路
 func VideoPlay(c *gin.Context) {
-
 	client := utils.New(c.Request.Header.Get("x-token"), c.ClientIP())
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video/play?" + c.Request.URL.RawQuery
 
@@ -696,6 +695,7 @@ func VideoPlay(c *gin.Context) {
 	if err != nil {
 		config.GinLOG.Error(fmt.Sprintf("Failed to deserialize data: %s", result))
 		config.GinLOG.Error(err.Error())
+		config.GinLOG.Error(fmt.Sprintf("Res String: %s", resp.String()))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
@@ -735,7 +735,6 @@ func VideoPlay(c *gin.Context) {
 
 // Danmu 弹幕数据
 func Danmu(c *gin.Context) {
-
 	client := utils.New(c.Request.Header.Get("x-token"), c.ClientIP())
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/danmu?" + c.Request.URL.RawQuery
 

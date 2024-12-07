@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"go-jocy/internal/controllers"
-	"go-jocy/internal/middleware"
 )
 
 // InitRouterApp Api
@@ -13,7 +12,7 @@ func InitRouterApp(r *gin.RouterGroup) {
 	r.GET("/users/avatar", controllers.UserAvatar)
 
 	auth := r.Group("")
-	auth.Use(middleware.RateLimitMiddleware()) // 限流
+	//auth.Use(middleware.RateLimitMiddleware()) // 限流
 	//auth.Use(middleware.Auth())                  // 鉴权
 	// 验证码
 	auth.POST("/users/captcha", controllers.UserCaptcha)

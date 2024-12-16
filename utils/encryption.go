@@ -266,7 +266,7 @@ func DecryptPlayUrl(source string) (any, error) {
 	client.SetHeaderVerbatim("x-sign1", MD5PlayUrlSign(appVersion, salt, ts))
 	client.SetHeaderVerbatim("x-sign2", MD5PlayUrlSign(source, salt, ts))
 
-	resp, err := client.R().Get("http://49.235.143.104:8483/vo1v03.php?url=" + modifiedSource)
+	resp, err := client.R().Get("http://yhhy.xj.zshtys888.com/vo1v03.php?url=" + modifiedSource)
 	if err != nil {
 		return nil, err
 	}

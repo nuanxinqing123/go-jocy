@@ -36,6 +36,7 @@ func New(AuthToken, AuthIP string) *Request {
 
 	// 设置请求头
 	client.SetHeaderVerbatim("User-Agent", "Dart/2.17 (dart:io)")
+	client.SetHeaderVerbatim("Accept-Encoding", "gzip")
 	client.SetHeaderVerbatim("ts", "1731687706456")
 	client.SetHeaderVerbatim("x-version", "2020-09-17")
 	client.SetHeaderVerbatim("appid", "4150439554430529")

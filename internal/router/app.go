@@ -2,6 +2,8 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-jocy/config"
+	_const "go-jocy/const"
 	"go-jocy/internal/middleware"
 
 	"go-jocy/internal/controllers"
@@ -14,7 +16,9 @@ func InitRouterApp(r *gin.RouterGroup) {
 
 	auth := r.Group("")
 	//auth.Use(middleware.RateLimitMiddleware()) // 限流
-	auth.Use(middleware.Auth()) // 鉴权
+	if config.GinConfig.App.Mode != _const.DeBug {
+		auth.Use(middleware.Auth()) // 鉴权
+	}
 	// 验证码
 	auth.POST("/users/captcha", controllers.UserCaptcha)
 	// 发送验证码

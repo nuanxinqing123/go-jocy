@@ -15,6 +15,6 @@ type Configuration struct {
 var (
 	GinConfig Configuration
 	GinLOG    *zap.Logger
-	GinCache  gcache.Cache
+	GinCache  gcache.Cache // 变更为Redis存储
 	GinVP     *viper.Viper
 )

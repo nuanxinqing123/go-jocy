@@ -37,9 +37,11 @@ func New(AuthToken, AuthIP string) *Request {
 	// 设置请求头
 	client.SetHeaderVerbatim("User-Agent", "Dart/2.17 (dart:io)")
 	client.SetHeaderVerbatim("Accept-Encoding", "gzip")
-	client.SetHeaderVerbatim("ts", "1731687706456")
 	client.SetHeaderVerbatim("x-version", "2020-09-17")
 	client.SetHeaderVerbatim("appid", "4150439554430529")
+
+	// todo 变更为实时计算, 疑似可以过CDN的403检查
+	client.SetHeaderVerbatim("ts", "1731687706456")
 	client.SetHeaderVerbatim("authentication", "HPNGF8PeCIjBOsHyrnnFuRhGF2immEFK7SOOT1D4+is+BNfhx82bTZrRYJ6rswOBSStD6M2oFrvkfQtSL6xGCOAxOx42pB34/ZyV+5TntqS6hnqAt4Xn/wHOWItBdU0/qJiwOg99FjdD3UwXAaZTig==")
 
 	if AuthToken != "" {

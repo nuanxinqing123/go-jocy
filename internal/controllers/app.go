@@ -720,6 +720,7 @@ func VideoPlay(c *gin.Context) {
 		return
 	}
 
+	// todo 直接执行LUA代码
 	playURL, err := utils.DecryptPlayUrl(res.Data[0].Url)
 	if err != nil {
 		config.GinLOG.Error(fmt.Sprintf("Failed to deserialize data: %s", playURL))

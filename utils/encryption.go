@@ -166,6 +166,30 @@ func AesEncryption(plaintext, key, iv string) (string, error) {
 	return ciphertextBase64, nil
 }
 
+// AesEncryptionBase64 AES加密(Base64)
+func AesEncryptionBase64(plaintext, key, iv string) (string, error) {
+	// Convert key and iv to byte slices
+	keyBytes := []byte(key)
+	ivBytes := []byte(iv)
+	plaintextBytes := []byte(plaintext)
+
+	// 将文本 Base64 编码
+	data2 := []byte(base64.StdEncoding.EncodeToString(plaintextBytes))
+
+	// 创建 AES Cipher
+	block, err := aes.NewCipher(keyBytes)
+	if err != nil {
+		return "", err
+	}
+
+	// 使用 CBC 模式加密
+	ciphertext := make([]byte, len(pkcs7Padding(data2, aes.BlockSize)))
+	cipher.NewCBCEncrypter(block, ivBytes).CryptBlocks(ciphertext, pkcs7Padding(data2, aes.BlockSize))
+
+	// 返回加密后的 Base64 字符串
+	return base64.StdEncoding.EncodeToString(ciphertext), nil
+}
+
 // AesDecryption AES解密
 func AesDecryption(encryptedText, key, iv string) (string, error) {
 	// 将密文解码为字节数组
@@ -265,6 +289,8 @@ func DecryptPlayUrl(source string) (any, error) {
 	client.SetHeaderVerbatim("x-form", platform)
 	client.SetHeaderVerbatim("x-sign1", MD5PlayUrlSign(appVersion, salt, ts))
 	client.SetHeaderVerbatim("x-sign2", MD5PlayUrlSign(source, salt, ts))
+
+	// todo 新增退避重试算法
 
 	resp, err := client.R().Get("http://yhhy.xj.6b7.xyz/vo1v03.php?url=" + modifiedSource)
 	if err != nil {

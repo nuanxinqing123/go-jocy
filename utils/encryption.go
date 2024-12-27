@@ -290,7 +290,9 @@ func DecryptPlayUrl(source string) (any, error) {
 	client.SetHeaderVerbatim("x-sign1", MD5PlayUrlSign(appVersion, salt, ts))
 	client.SetHeaderVerbatim("x-sign2", MD5PlayUrlSign(source, salt, ts))
 
-	// todo 新增退避重试算法
+	// 退避重试
+	client.SetRetryCount(3)
+	client.SetRetryWaitTime(time.Second / 2)
 
 	resp, err := client.R().Get("http://yhhy.xj.6b7.xyz/vo1v03.php?url=" + modifiedSource)
 	if err != nil {

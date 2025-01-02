@@ -97,10 +97,12 @@ func UserCaptcha(c *gin.Context) {
 // UserSmsCode 发送验证码
 func UserSmsCode(c *gin.Context) {
 	type SmsCode struct {
-		Phone string `json:"phone" required:"true"`
+		Email string `json:"email"`
+		Phone string `json:"phone"`
 		Type  string `json:"type" required:"true"`
 		UUID  string `json:"uuid" required:"true"`
 		Dots  string `json:"dots" required:"true"`
+		Enum  int    `json:"enum"`
 	}
 
 	p := new(SmsCode)
@@ -111,14 +113,28 @@ func UserSmsCode(c *gin.Context) {
 		return
 	}
 
+	// 如果 Enum为1, 则是邮箱验证码
+	if p.Enum == 1 && p.Email == "" {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"msg": "email is required",
+		})
+		return
+	} else if p.Enum == 0 && p.Phone == "" {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"msg": "phone is required",
+		})
+		return
+	}
+
 	client := utils.New("", c.ClientIP())
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/users/smscode"
 
 	// Struct 转 String
 	jsonStr, err := json.Marshal(map[string]any{
 		"phone": p.Phone,
+		"email": p.Email,
 		"type":  p.Type,
-		"enum":  0,
+		"enum":  p.Enum,
 		"uuid":  p.UUID,
 		"dots":  p.Dots,
 	})
@@ -160,10 +176,12 @@ func UserSmsCode(c *gin.Context) {
 // UserRegister 用户注册
 func UserRegister(c *gin.Context) {
 	type Register struct {
-		Phone    string `json:"phone" required:"true"`
+		Email    string `json:"email"`
+		Phone    string `json:"phone"`
 		Password string `json:"password" required:"true"`
 		SmsCode  string `json:"sms_code" required:"true"`
 		UserName string `json:"user_name" required:"true"`
+		Enum     int    `json:"enum"`
 	}
 
 	p := new(Register)
@@ -174,16 +192,30 @@ func UserRegister(c *gin.Context) {
 		return
 	}
 
+	// 如果 Enum为1, 则是邮箱验证码
+	if p.Enum == 1 && p.Email == "" {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"msg": "email is required",
+		})
+		return
+	} else if p.Enum == 0 && p.Phone == "" {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"msg": "phone is required",
+		})
+		return
+	}
+
 	client := utils.New("", c.ClientIP())
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/users/register"
 
 	// Struct 转 String
 	jsonStr, err := json.Marshal(map[string]any{
 		"phone":     p.Phone,
+		"email":     p.Email,
 		"password":  p.Password,
 		"smscode":   p.SmsCode,
 		"user_name": p.UserName,
-		"enum":      0,
+		"enum":      p.Enum,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -223,8 +255,10 @@ func UserRegister(c *gin.Context) {
 // UserLogin 用户登录
 func UserLogin(c *gin.Context) {
 	type Login struct {
-		Phone    string `json:"phone" required:"true"`
+		Email    string `json:"email"`
+		Phone    string `json:"phone"`
 		Password string `json:"password" required:"true"`
+		Enum     int    `json:"enum"`
 	}
 
 	p := new(Login)
@@ -235,14 +269,28 @@ func UserLogin(c *gin.Context) {
 		return
 	}
 
+	// 如果 Enum为1, 则是邮箱验证码
+	if p.Enum == 1 && p.Email == "" {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"msg": "email is required",
+		})
+		return
+	} else if p.Enum == 0 && p.Phone == "" {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"msg": "phone is required",
+		})
+		return
+	}
+
 	client := utils.New("", c.ClientIP())
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/users/login"
 
 	// Struct 转 String
 	jsonStr, err := json.Marshal(map[string]any{
 		"phone":    p.Phone,
+		"email":    p.Email,
 		"password": p.Password,
-		"enum":     0,
+		"enum":     p.Enum,
 		"symbol":   utils.RandomString(16),
 	})
 	if err != nil {

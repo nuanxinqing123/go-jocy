@@ -16,7 +16,7 @@ func InitRouterApp(r *gin.RouterGroup) {
 
 	auth := r.Group("")
 	//auth.Use(middleware.RateLimitMiddleware()) // 限流
-	if config.GinConfig.App.Mode != _const.DeBug {
+	if config.GinConfig.App.Mode == _const.ReLease {
 		auth.Use(middleware.Auth()) // 鉴权
 	}
 	// 验证码

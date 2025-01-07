@@ -24,12 +24,6 @@ func main() {
 	// 初始化日志
 	config.GinLOG = initialize.Zap()
 
-	// 初始化 GCache
-	config.GinCache = initialize.InitGCache()
-	if config.GinCache == nil {
-		fmt.Println("GCache初始化成功")
-	}
-
 	// 初始化路由
 	router := initialize.Routers()
 	if router == nil {

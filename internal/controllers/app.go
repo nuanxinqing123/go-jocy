@@ -2,11 +2,9 @@ package controllers
 
 import (
 	"fmt"
-	"net/http"
-	"time"
-
 	"github.com/gin-gonic/gin"
 	jsoniter "github.com/json-iterator/go"
+	"net/http"
 
 	"go-jocy/config"
 	"go-jocy/internal/model"
@@ -434,13 +432,6 @@ func Channel(c *gin.Context) {
 	client := utils.New(c.Request.Header.Get("x-token"), c.ClientIP())
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/channel?top-level=true"
 
-	kvName := "channel"
-	cache, err := config.GinCache.GetIFPresent(kvName)
-	if err == nil {
-		c.String(http.StatusOK, cache.(string))
-		return
-	}
-
 	resp, err := client.Get(url, nil)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
@@ -455,11 +446,6 @@ func Channel(c *gin.Context) {
 			"msg": err.Error(),
 		})
 		return
-	}
-
-	// 写入缓存
-	if resp.StatusCode() == http.StatusOK {
-		_ = config.GinCache.SetWithExpire(kvName, result, time.Hour)
 	}
 
 	c.String(http.StatusOK, result)
@@ -471,13 +457,6 @@ func VideoList(c *gin.Context) {
 	client := utils.New(c.Request.Header.Get("x-token"), c.ClientIP())
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video/list?" + c.Request.URL.RawQuery
 
-	kvName := "video:list:" + c.Request.URL.RawQuery
-	cache, err := config.GinCache.GetIFPresent(kvName)
-	if err == nil {
-		c.String(http.StatusOK, cache.(string))
-		return
-	}
-
 	resp, err := client.Get(url, nil)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
@@ -492,11 +471,6 @@ func VideoList(c *gin.Context) {
 			"msg": err.Error(),
 		})
 		return
-	}
-
-	// 写入缓存
-	if resp.StatusCode() == http.StatusOK {
-		_ = config.GinCache.SetWithExpire(kvName, result, time.Minute*10)
 	}
 
 	c.String(http.StatusOK, result)
@@ -508,13 +482,6 @@ func Banners(c *gin.Context) {
 	client := utils.New(c.Request.Header.Get("x-token"), c.ClientIP())
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/banners/" + c.Param("id")
 
-	kvName := "banners/" + c.Param("id")
-	cache, err := config.GinCache.GetIFPresent(kvName)
-	if err == nil {
-		c.String(http.StatusOK, cache.(string))
-		return
-	}
-
 	resp, err := client.Get(url, nil)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
@@ -529,11 +496,6 @@ func Banners(c *gin.Context) {
 			"msg": err.Error(),
 		})
 		return
-	}
-
-	// 写入缓存
-	if resp.StatusCode() == http.StatusOK {
-		_ = config.GinCache.SetWithExpire(kvName, result, time.Minute*30)
 	}
 
 	c.String(http.StatusOK, result)
@@ -545,13 +507,6 @@ func VideoUpdateList(c *gin.Context) {
 	client := utils.New(c.Request.Header.Get("x-token"), c.ClientIP())
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video_update_list/" + c.Param("date") + "?" + c.Request.URL.RawQuery
 
-	kvName := "video_update_list:date:" + c.Param("date") + ":" + c.Request.URL.RawQuery
-	cache, err := config.GinCache.GetIFPresent(kvName)
-	if err == nil {
-		c.String(http.StatusOK, cache.(string))
-		return
-	}
-
 	resp, err := client.Get(url, nil)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
@@ -566,11 +521,6 @@ func VideoUpdateList(c *gin.Context) {
 			"msg": err.Error(),
 		})
 		return
-	}
-
-	// 写入缓存
-	if resp.StatusCode() == http.StatusOK {
-		_ = config.GinCache.SetWithExpire(kvName, result, time.Minute*30)
 	}
 
 	c.String(http.StatusOK, result)
@@ -582,13 +532,6 @@ func VideoDetail(c *gin.Context) {
 	client := utils.New(c.Request.Header.Get("x-token"), c.ClientIP())
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video/detail?" + c.Request.URL.RawQuery
 
-	kvName := "video:detail:" + c.Request.URL.RawQuery
-	cache, err := config.GinCache.GetIFPresent(kvName)
-	if err == nil {
-		c.String(http.StatusOK, cache.(string))
-		return
-	}
-
 	resp, err := client.Get(url, nil)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
@@ -603,11 +546,6 @@ func VideoDetail(c *gin.Context) {
 			"msg": err.Error(),
 		})
 		return
-	}
-
-	// 写入缓存
-	if resp.StatusCode() == http.StatusOK {
-		_ = config.GinCache.SetWithExpire(kvName, result, time.Hour)
 	}
 
 	c.String(http.StatusOK, result)
@@ -619,13 +557,6 @@ func VodCommentGetHitStop(c *gin.Context) {
 	client := utils.New(c.Request.Header.Get("x-token"), c.ClientIP())
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/vod_comment/gethitstop?" + c.Request.URL.RawQuery
 
-	kvName := "vod_comment:gethitstop:" + c.Request.URL.RawQuery
-	cache, err := config.GinCache.GetIFPresent(kvName)
-	if err == nil {
-		c.String(http.StatusOK, cache.(string))
-		return
-	}
-
 	resp, err := client.Get(url, nil)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
@@ -640,11 +571,6 @@ func VodCommentGetHitStop(c *gin.Context) {
 			"msg": err.Error(),
 		})
 		return
-	}
-
-	// 写入缓存
-	if resp.StatusCode() == http.StatusOK {
-		_ = config.GinCache.SetWithExpire(kvName, result, time.Hour)
 	}
 
 	c.String(http.StatusOK, result)
@@ -656,13 +582,6 @@ func VodCommentGetList(c *gin.Context) {
 	client := utils.New(c.Request.Header.Get("x-token"), c.ClientIP())
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/vod_comment/getlist?" + c.Request.URL.RawQuery
 
-	kvName := "vod_comment:getlist:" + c.Request.URL.RawQuery
-	cache, err := config.GinCache.GetIFPresent(kvName)
-	if err == nil {
-		c.String(http.StatusOK, cache.(string))
-		return
-	}
-
 	resp, err := client.Get(url, nil)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
@@ -677,11 +596,6 @@ func VodCommentGetList(c *gin.Context) {
 			"msg": err.Error(),
 		})
 		return
-	}
-
-	// 写入缓存
-	if resp.StatusCode() == http.StatusOK {
-		_ = config.GinCache.SetWithExpire(kvName, result, time.Minute*10)
 	}
 
 	c.String(http.StatusOK, result)
@@ -693,13 +607,6 @@ func VodCommentGetSubList(c *gin.Context) {
 	client := utils.New(c.Request.Header.Get("x-token"), c.ClientIP())
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/vod_comment/getsublist?" + c.Request.URL.RawQuery
 
-	kvName := "vod_comment:getsublist:" + c.Request.URL.RawQuery
-	cache, err := config.GinCache.GetIFPresent(kvName)
-	if err == nil {
-		c.String(http.StatusOK, cache.(string))
-		return
-	}
-
 	resp, err := client.Get(url, nil)
 	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
@@ -714,11 +621,6 @@ func VodCommentGetSubList(c *gin.Context) {
 			"msg": err.Error(),
 		})
 		return
-	}
-
-	// 写入缓存
-	if resp.StatusCode() == http.StatusOK {
-		_ = config.GinCache.SetWithExpire(kvName, result, time.Minute*10)
 	}
 
 	c.String(http.StatusOK, result)

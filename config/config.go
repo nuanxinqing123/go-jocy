@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/bluele/gcache"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
@@ -15,6 +14,5 @@ type Configuration struct {
 var (
 	GinConfig Configuration
 	GinLOG    *zap.Logger
-	GinCache  gcache.Cache // 变更为Redis存储
 	GinVP     *viper.Viper
 )

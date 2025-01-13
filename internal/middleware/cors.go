@@ -7,8 +7,10 @@ import (
 )
 
 var AllowOrigins = []string{
+	"http://127.0.0.1:3000",
 	"http://localhost:3000",
 	"http://127.0.0.1:8088",
+	"http://localhost:8088",
 	"https://jocy.6b7.xyz",
 	"https://www.jocyweb.com",
 }

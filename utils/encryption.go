@@ -271,7 +271,7 @@ func MD5PlayUrlSign(jmStr, salt, ts string) string {
 func DecryptPlayUrl(source string) (any, error) {
 	// 模拟设备信息
 	platform := "Android"
-	appVersion := "1.5.7.5"
+	appVersion := config.GinConfig.App.AppVersion
 
 	// 加密盐
 	salt := "v50gjcy"

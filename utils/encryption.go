@@ -320,7 +320,7 @@ func DecryptPlayUrl(source string) (any, error) {
 }
 
 // DecryptPlayUrlLUA 解密播放地址LUA版本
-func DecryptPlayUrlLUA(luaScript, source string) (any, error) {
+func DecryptPlayUrlLUA(luaScript, source, AuthIP string) (any, error) {
 	// 创建一个新的Lua状态
 	L := lua.NewState()
 	defer L.Close()
@@ -372,6 +372,15 @@ func DecryptPlayUrlLUA(luaScript, source string) (any, error) {
 
 		// 设置请求头
 		req := client.R()
+
+		// 添加IP相关的请求头
+		if AuthIP != "" {
+			req.SetHeader("X-Forwarded-For", AuthIP)
+			req.SetHeader("X-Real-IP", AuthIP)
+			req.SetHeader("True-Client-IP", AuthIP)
+			req.SetHeader("Client-IP", AuthIP)
+		}
+
 		if options != nil {
 			headerTable := options.RawGetString("header")
 			if headerTable, ok := headerTable.(*lua.LTable); ok {
@@ -428,7 +437,7 @@ func DecryptPlayUrlLUA(luaScript, source string) (any, error) {
 			return 1
 		}
 
-		L.Push(lua.LString(string(jsonBytes)))
+		L.Push(lua.LString(jsonBytes))
 		return 1
 	}))
 

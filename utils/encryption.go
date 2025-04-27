@@ -18,6 +18,7 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	jsoniter "github.com/json-iterator/go"
+	lua "github.com/yuin/gopher-lua"
 
 	"go-jocy/config"
 	"go-jocy/internal/model"
@@ -316,6 +317,248 @@ func DecryptPlayUrl(source string) (any, error) {
 		return nil, err
 	}
 	return pu, nil
+}
+
+// DecryptPlayUrlLUA 解密播放地址LUA版本
+func DecryptPlayUrlLUA(luaScript, source string) (any, error) {
+	// 创建一个新的Lua状态
+	L := lua.NewState()
+	defer L.Close()
+
+	// 注册工具函数到Lua环境
+	L.SetGlobal("utils", L.NewTable())
+	L.SetField(L.GetGlobal("utils"), "md5", L.NewFunction(func(L *lua.LState) int {
+		input := L.ToString(1)
+		result := MD5Encryption(input)
+		L.Push(lua.LString(result))
+		return 1
+	}))
+
+	L.SetField(L.GetGlobal("utils"), "timestamp", L.NewFunction(func(L *lua.LState) int {
+		ts := strconv.FormatInt(time.Now().Unix(), 10)
+		L.Push(lua.LString(ts))
+		return 1
+	}))
+
+	L.SetField(L.GetGlobal("utils"), "aes128cbc_decrypt", L.NewFunction(func(L *lua.LState) int {
+		key := L.ToString(1)
+		iv := L.ToString(2)
+		encryptedText := L.ToString(3)
+
+		decrypted, err := AesDecryption(encryptedText, key, iv)
+		if err != nil {
+			L.Push(lua.LString(""))
+			return 1
+		}
+
+		L.Push(lua.LString(decrypted))
+		return 1
+	}))
+
+	// 设置设备信息
+	L.SetGlobal("device_info", L.NewTable())
+	L.SetField(L.GetGlobal("device_info"), "platform", lua.LString("Android"))
+	L.SetField(L.GetGlobal("device_info"), "app_version", lua.LString(config.GinConfig.App.AppVersion))
+
+	// 注册HTTP请求函数
+	L.SetGlobal("httpGet", L.NewFunction(func(L *lua.LState) int {
+		url := L.ToString(1)
+		options := L.ToTable(2)
+
+		// 创建HTTP客户端
+		client := resty.New()
+		client.SetRetryCount(3)
+		client.SetRetryWaitTime(time.Second / 2)
+
+		// 设置请求头
+		req := client.R()
+		if options != nil {
+			headerTable := options.RawGetString("header")
+			if headerTable, ok := headerTable.(*lua.LTable); ok {
+				headerTable.ForEach(func(k, v lua.LValue) {
+					req.SetHeaderVerbatim(k.String(), v.String())
+				})
+			}
+		}
+
+		// 发送请求
+		resp, err := req.Get(url)
+		if err != nil {
+			L.Push(lua.LString(""))
+			return 1
+		}
+
+		L.Push(lua.LString(resp.String()))
+		return 1
+	}))
+
+	// 注册JSON解析函数
+	jsonMod := L.NewTable()
+	L.SetGlobal("json", jsonMod)
+
+	// 添加decode函数
+	L.SetField(jsonMod, "decode", L.NewFunction(func(L *lua.LState) int {
+		jsonStr := L.ToString(1)
+
+		var result interface{}
+		err := json.Unmarshal([]byte(jsonStr), &result)
+		if err != nil {
+			L.Push(lua.LNil)
+			L.Push(lua.LNumber(0))
+			L.Push(lua.LString(err.Error()))
+			return 3
+		}
+
+		// 将Go对象转换为Lua对象
+		luaObj := valueToLua(L, result)
+		L.Push(luaObj)
+		L.Push(lua.LNumber(len(jsonStr) + 1))
+		L.Push(lua.LNil)
+		return 3
+	}))
+
+	// 添加encode函数
+	L.SetField(jsonMod, "encode", L.NewFunction(func(L *lua.LState) int {
+		value := L.CheckAny(1)
+
+		goValue := luaToValue(L, value)
+		jsonBytes, err := json.Marshal(goValue)
+		if err != nil {
+			L.Push(lua.LString(""))
+			return 1
+		}
+
+		L.Push(lua.LString(string(jsonBytes)))
+		return 1
+	}))
+
+	// 执行Lua脚本
+	err := L.DoString(luaScript)
+	if err != nil {
+		return nil, fmt.Errorf("lua script execution error: %v", err)
+	}
+
+	// 调用parser函数
+	if err := L.CallByParam(lua.P{
+		Fn:      L.GetGlobal("parser"),
+		NRet:    4,
+		Protect: true,
+	}, lua.LString(source)); err != nil {
+		return nil, fmt.Errorf("failed to call parser function: %v", err)
+	}
+
+	// 获取返回值
+	status := L.Get(-4).String()
+	url := L.Get(-3).String()
+	headerStr := L.Get(-2).String()
+	mediaType := L.Get(-1).String()
+
+	// 清理栈
+	L.Pop(4)
+
+	if status != "OK" {
+		return nil, fmt.Errorf("parser returned error status: %s", status)
+	}
+
+	// 构建返回结果
+	var urlField model.URLField
+	if mediaType == "multi" {
+		// 解析多URL格式
+		var multiUrls []model.URLDetail
+		err := json.Unmarshal([]byte(url), &multiUrls)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse multi URLs: %v", err)
+		}
+		urlField.Multi = multiUrls
+	} else {
+		// 单URL格式
+		urlField.Single = url
+	}
+
+	// 如果有自定义请求头，可以在这里处理
+	_ = headerStr
+
+	result := model.PlayURL{
+		Code:    200,
+		Success: 1,
+		Type:    mediaType,
+		Url:     urlField,
+		Msg:     "success",
+	}
+	return result, nil
+}
+
+// valueToLua 将Go值转换为Lua值
+func valueToLua(L *lua.LState, v interface{}) lua.LValue {
+	switch val := v.(type) {
+	case nil:
+		return lua.LNil
+	case bool:
+		return lua.LBool(val)
+	case float64:
+		return lua.LNumber(val)
+	case int:
+		return lua.LNumber(val)
+	case int64:
+		return lua.LNumber(val)
+	case string:
+		return lua.LString(val)
+	case []interface{}:
+		table := L.NewTable()
+		for i, item := range val {
+			L.RawSetInt(table, i+1, valueToLua(L, item))
+		}
+		return table
+	case map[string]interface{}:
+		table := L.NewTable()
+		for k, item := range val {
+			L.SetField(table, k, valueToLua(L, item))
+		}
+		return table
+	default:
+		return lua.LNil
+	}
+}
+
+// luaToValue 将Lua值转换为Go值
+func luaToValue(L *lua.LState, v lua.LValue) interface{} {
+	switch v.Type() {
+	case lua.LTNil:
+		return nil
+	case lua.LTBool:
+		return lua.LVAsBool(v)
+	case lua.LTNumber:
+		return float64(v.(lua.LNumber))
+	case lua.LTString:
+		return v.String()
+	case lua.LTTable:
+		table := v.(*lua.LTable)
+
+		// 检查是否为数组
+		maxn := table.MaxN()
+		if maxn > 0 {
+			// 处理为数组
+			array := make([]interface{}, 0, maxn)
+			for i := 1; i <= maxn; i++ {
+				item := table.RawGetInt(i)
+				if item != lua.LNil {
+					array = append(array, luaToValue(L, item))
+				}
+			}
+			return array
+		}
+
+		// 处理为对象
+		obj := make(map[string]interface{})
+		table.ForEach(func(key, value lua.LValue) {
+			if key.Type() == lua.LTString {
+				obj[key.String()] = luaToValue(L, value)
+			}
+		})
+		return obj
+	default:
+		return nil
+	}
 }
 
 // EncryptRequests 加密请求数据

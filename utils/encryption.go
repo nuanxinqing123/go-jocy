@@ -7,6 +7,7 @@ import (
 	"crypto/md5"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/tls"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/hex"
@@ -379,6 +380,9 @@ func DecryptPlayUrlLUA(luaScript, source, AuthIP string) (any, error) {
 		// 设置代理
 		if config.GinConfig.App.Proxy != "" {
 			client.SetProxy(config.GinConfig.App.Proxy)
+
+			// 忽略 HTTPS 证书验证
+			client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 		}
 
 		// 设置请求头

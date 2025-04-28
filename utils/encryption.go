@@ -7,7 +7,6 @@ import (
 	"crypto/md5"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/tls"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/hex"
@@ -297,12 +296,8 @@ func DecryptPlayUrl(source string) (any, error) {
 	client.SetRetryCount(3)
 	client.SetRetryWaitTime(time.Second / 2)
 
-	// 设置代理
-	if config.GinConfig.App.Proxy != "" {
-		client.SetProxy(config.GinConfig.App.Proxy)
-	}
-
-	resp, err := client.R().Get("http://yhhy.xj.zshtys888.com/vo1v03.php?url=" + modifiedSource)
+	//resp, err := client.R().Get("http://yhhy.xj.zshtys888.com/vo1v03.php?url=" + modifiedSource)
+	resp, err := client.R().Get("http://yhhy.xj.6b7.xyz/vo1v03.php?url=" + modifiedSource)
 	if err != nil {
 		return nil, err
 	}
@@ -377,14 +372,6 @@ func DecryptPlayUrlLUA(luaScript, source, AuthIP string) (any, error) {
 		client.SetRetryCount(3)
 		client.SetRetryWaitTime(time.Second / 2)
 
-		// 设置代理
-		if config.GinConfig.App.Proxy != "" {
-			client.SetProxy(config.GinConfig.App.Proxy)
-
-			// 忽略 HTTPS 证书验证
-			client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
-		}
-
 		// 设置请求头
 		req := client.R()
 
@@ -409,6 +396,11 @@ func DecryptPlayUrlLUA(luaScript, source, AuthIP string) (any, error) {
 				})
 			}
 		}
+
+		// 替换请求地址 [yhhy.xj.zshtys888.com] -> [yhhy.xj.6b7.xyz]
+		oldUrl := "yhhy.xj.zshtys888.com"
+		newUrl := "yhhy.xj.6b7.xyz"
+		url = strings.Replace(url, oldUrl, newUrl, -1)
 
 		// 发送请求
 		resp, err := req.Get(url)

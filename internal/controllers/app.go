@@ -670,7 +670,7 @@ func VideoPlay(c *gin.Context) {
 		return
 	}
 
-	// todo 直接执行LUA代码
+	// 执行LUA代码
 	//playURL, err := utils.DecryptPlayUrl(res.Data[0].Url)
 	playURL, err := utils.DecryptPlayUrlLUA(res.Data[0].Parse, res.Data[0].Url, c.ClientIP())
 	if err != nil {

@@ -6,5 +6,4 @@ type App struct {
 	Port       int      `mapstructure:"port" json:"port" yaml:"port"`
 	BaseURL    []string `mapstructure:"baseURL" json:"baseURL" yaml:"baseURL"`
 	AppVersion string   `mapstructure:"appVersion" json:"appVersion" yaml:"appVersion"`
-	Proxy      string   `mapstructure:"proxy" json:"proxy" yaml:"proxy"`
 }

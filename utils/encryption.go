@@ -401,7 +401,7 @@ func DecryptPlayUrlLUA(luaScript, source, AuthIP string) (any, error) {
 			if headerTable, ok := headerTable.(*lua.LTable); ok {
 				headerTable.ForEach(func(k, v lua.LValue) {
 					config.GinLOG.Debug(fmt.Sprintf("Key: %s, Value: %s", k.String(), v.String()))
-					req.SetHeaderVerbatim(k.String(), v.String())
+					req.SetHeader(k.String(), v.String())
 				})
 			}
 		}

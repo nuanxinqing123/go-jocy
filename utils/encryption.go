@@ -7,6 +7,7 @@ import (
 	"crypto/md5"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/tls"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/hex"
@@ -296,7 +297,15 @@ func DecryptPlayUrl(source string) (any, error) {
 	client.SetRetryCount(3)
 	client.SetRetryWaitTime(time.Second / 2)
 
-	resp, err := client.R().Get("http://yhhy.xj.zshtys888.com/vo1v03.php?url=" + modifiedSource)
+	// 设置代理
+	if config.GinConfig.App.Proxy != "" {
+		client.SetProxy(config.GinConfig.App.Proxy)
+	}
+
+	// 跳过TLS错误
+	client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+
+	resp, err := client.R().Get("https://yhhy.xj.zshtys888.com/vo1v03.php?url=" + modifiedSource)
 	if err != nil {
 		return nil, err
 	}

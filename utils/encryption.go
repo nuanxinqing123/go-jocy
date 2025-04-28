@@ -7,7 +7,6 @@ import (
 	"crypto/md5"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/tls"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/hex"
@@ -302,10 +301,7 @@ func DecryptPlayUrl(source string) (any, error) {
 		client.SetProxy(config.GinConfig.App.Proxy)
 	}
 
-	// 跳过TLS错误
-	client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
-
-	resp, err := client.R().Get("https://yhhy.xj.zshtys888.com/vo1v03.php?url=" + modifiedSource)
+	resp, err := client.R().Get("http://yhhy.xj.zshtys888.com/vo1v03.php?url=" + modifiedSource)
 	if err != nil {
 		return nil, err
 	}
@@ -390,8 +386,12 @@ func DecryptPlayUrlLUA(luaScript, source, AuthIP string) (any, error) {
 
 		// 添加IP相关的请求头
 		if AuthIP != "" {
+			config.GinLOG.Debug(fmt.Sprintf("Client 真实IP: %s", AuthIP))
 			req.SetHeader("X-Forwarded-For", AuthIP)
+			req.SetHeader("Q-forwarded-for", AuthIP)
+			req.SetHeader("Cdn-Src-Ip", AuthIP)
 			req.SetHeader("X-Real-IP", AuthIP)
+			req.SetHeader("Cdn-Real-IP", AuthIP)
 			req.SetHeader("True-Client-IP", AuthIP)
 			req.SetHeader("Client-IP", AuthIP)
 		}

@@ -19,6 +19,7 @@ import (
 	"github.com/go-resty/resty/v2"
 	jsoniter "github.com/json-iterator/go"
 	lua "github.com/yuin/gopher-lua"
+	restyv3 "resty.dev/v3"
 
 	"go-jocy/config"
 	"go-jocy/internal/model"
@@ -295,7 +296,7 @@ func DecryptPlayUrl(source string) (any, error) {
 	client.SetRetryCount(3)
 	client.SetRetryWaitTime(time.Second / 2)
 
-	resp, err := client.R().Get("http://yhhy.xj.6b7.xyz/vo1v03.php?url=" + modifiedSource)
+	resp, err := client.R().Get("http://yhhy.xj.zshtys888.com/vo1v03.php?url=" + modifiedSource)
 	if err != nil {
 		return nil, err
 	}
@@ -366,9 +367,14 @@ func DecryptPlayUrlLUA(luaScript, source, AuthIP string) (any, error) {
 		options := L.ToTable(2)
 
 		// 创建HTTP客户端
-		client := resty.New()
+		client := restyv3.New()
 		client.SetRetryCount(3)
 		client.SetRetryWaitTime(time.Second / 2)
+
+		// 设置代理
+		if config.GinConfig.App.Proxy != "" {
+			client.SetProxy(config.GinConfig.App.Proxy)
+		}
 
 		// 设置请求头
 		req := client.R()
@@ -385,6 +391,7 @@ func DecryptPlayUrlLUA(luaScript, source, AuthIP string) (any, error) {
 			headerTable := options.RawGetString("header")
 			if headerTable, ok := headerTable.(*lua.LTable); ok {
 				headerTable.ForEach(func(k, v lua.LValue) {
+					config.GinLOG.Debug(fmt.Sprintf("Key: %s, Value: %s", k.String(), v.String()))
 					req.SetHeaderVerbatim(k.String(), v.String())
 				})
 			}
@@ -397,6 +404,8 @@ func DecryptPlayUrlLUA(luaScript, source, AuthIP string) (any, error) {
 			return 1
 		}
 
+		config.GinLOG.Debug(fmt.Sprintf("LUA请求地址: %s", url))
+		config.GinLOG.Debug(fmt.Sprintf("LUA执行结果: %s", resp.String()))
 		L.Push(lua.LString(resp.String()))
 		return 1
 	}))

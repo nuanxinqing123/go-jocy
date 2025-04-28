@@ -13,7 +13,9 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/spf13/viper v1.19.0
+	github.com/yuin/gopher-lua v1.1.1
 	go.uber.org/zap v1.27.0
+	resty.dev/v3 v3.0.0-beta.2
 )
 
 require (
@@ -47,7 +49,6 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
-	github.com/yuin/gopher-lua v1.1.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.12.0 // indirect
 	golang.org/x/crypto v0.36.0 // indirect

@@ -410,6 +410,7 @@ func DecryptPlayUrlLUA(luaScript, source, AuthIP string) (any, error) {
 		}
 
 		config.GinLOG.Debug(fmt.Sprintf("LUA请求地址: %s", url))
+		config.GinLOG.Debug(fmt.Sprintf("LUA请求Code: %d", resp.StatusCode()))
 		config.GinLOG.Debug(fmt.Sprintf("LUA执行结果: %s", resp.String()))
 		L.Push(lua.LString(resp.String()))
 		return 1

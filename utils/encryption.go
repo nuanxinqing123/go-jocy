@@ -298,7 +298,7 @@ func DecryptPlayUrl(source string) (any, error) {
 	client.SetRetryWaitTime(time.Second / 2)
 
 	//resp, err := client.R().Get("http://yhhy.xj.zshtys888.com/vo1v03.php?url=" + modifiedSource)
-	resp, err := client.R().Get("http://yhhy.xj.6b7.xyz/vo1v03.php?url=" + modifiedSource)
+	resp, err := client.R().Get("https://jocy-jx.6b7.xyz/vo1v03.php?url=" + modifiedSource)
 	if err != nil {
 		return nil, err
 	}
@@ -398,9 +398,9 @@ func DecryptPlayUrlLUA(luaScript, source, AuthIP string) (any, error) {
 			}
 		}
 
-		// 替换请求地址 [yhhy.xj.zshtys888.com] -> [yhhy.xj.6b7.xyz]
+		// 替换请求地址 [yhhy.xj.zshtys888.com] -> [jocy-jx.6b7.xyz]
 		oldUrl := "yhhy.xj.zshtys888.com"
-		newUrl := "yhhy.xj.6b7.xyz"
+		newUrl := "jocy-jx.6b7.xyz"
 		url = strings.Replace(url, oldUrl, newUrl, -1)
 
 		// 发送请求
@@ -528,7 +528,7 @@ func DecryptPlayParams(source string) (any, error) {
 	modifiedSource := fmt.Sprintf("%s&t=%s", source, ts)
 
 	return gin.H{
-		"url":     "http://yhhy.xj.6b7.xyz/vo1v03.php?url=" + modifiedSource,
+		"url":     "https://jocy-jx.6b7.xyz/vo1v03.php?url=" + modifiedSource,
 		"x-time":  ts,
 		"x-form":  platform,
 		"x-sign1": MD5PlayUrlSign(appVersion, salt, ts),

@@ -74,13 +74,13 @@ func UserCaptcha(c *gin.Context) {
 	}
 
 	resp, err := client.Post(url, enText)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -153,13 +153,13 @@ func UserSmsCode(c *gin.Context) {
 	}
 
 	resp, err := client.Post(url, enText)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -232,13 +232,13 @@ func UserRegister(c *gin.Context) {
 	}
 
 	resp, err := client.Post(url, enText)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -308,13 +308,13 @@ func UserLogin(c *gin.Context) {
 	}
 
 	resp, err := client.Post(url, enText)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -333,13 +333,13 @@ func UserLogout(c *gin.Context) {
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/users/logout"
 
 	resp, err := client.Post(url, nil)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -358,13 +358,13 @@ func UserInfo(c *gin.Context) {
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/users/info"
 
 	resp, err := client.Get(url, nil)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -383,13 +383,13 @@ func MessageBox(c *gin.Context) {
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/messagebox"
 
 	resp, err := client.Get(url, nil)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -408,13 +408,13 @@ func MessageBoxType(c *gin.Context) {
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/messagebox/" + c.Param("type") + "?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -433,13 +433,13 @@ func Channel(c *gin.Context) {
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/channel?top-level=true"
 
 	resp, err := client.Get(url, nil)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -458,13 +458,13 @@ func VideoList(c *gin.Context) {
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video/list?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -483,13 +483,13 @@ func Banners(c *gin.Context) {
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/banners/" + c.Param("id")
 
 	resp, err := client.Get(url, nil)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -508,13 +508,13 @@ func VideoUpdateList(c *gin.Context) {
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video_update_list/" + c.Param("date") + "?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -533,13 +533,13 @@ func VideoDetail(c *gin.Context) {
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video/detail?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -558,13 +558,13 @@ func VodCommentGetHitStop(c *gin.Context) {
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/vod_comment/gethitstop?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -583,13 +583,13 @@ func VodCommentGetList(c *gin.Context) {
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/vod_comment/getlist?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -608,13 +608,13 @@ func VodCommentGetSubList(c *gin.Context) {
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/vod_comment/getsublist?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -632,13 +632,13 @@ func VideoPlay(c *gin.Context) {
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video/play?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 
 	// 解密数据
 	result, err := utils.ResponseDecryption(resp.String())
@@ -691,13 +691,13 @@ func Danmu(c *gin.Context) {
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/danmu?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 
 	c.String(http.StatusOK, resp.String())
 }
@@ -709,13 +709,13 @@ func VideoSearch(c *gin.Context) {
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video/search?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -734,13 +734,13 @@ func VideoKey(c *gin.Context) {
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video/key?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -769,13 +769,13 @@ func PlayResources(c *gin.Context) {
 	client := utils.New(c.Request.Header.Get("x-token"), c.ClientIP())
 
 	resp, err := client.Get(p.Url, nil)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 
 	c.Data(http.StatusOK, resp.Header().Get("Content-Type"), resp.Body())
 }
@@ -787,13 +787,13 @@ func History(c *gin.Context) {
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/history?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -849,13 +849,13 @@ func HistoryUpload(c *gin.Context) {
 	}
 
 	resp, err := client.Post(url, enText)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -874,13 +874,13 @@ func Collect(c *gin.Context) {
 	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/collect?" + c.Request.URL.RawQuery
 
 	resp, err := client.Get(url, nil)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -930,13 +930,13 @@ func CollectCreate(c *gin.Context) {
 	}
 
 	resp, err := client.Post(url, enText)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -986,13 +986,13 @@ func CollectDelete(c *gin.Context) {
 	}
 
 	resp, err := client.Delete(url, enText)
-	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
 	result, err := utils.ResponseDecryption(resp.String())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

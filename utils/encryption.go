@@ -12,6 +12,7 @@ import (
 	"encoding/hex"
 	"encoding/pem"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"strconv"
 	"strings"
 	"time"
@@ -510,6 +511,31 @@ func DecryptPlayUrlLUA(luaScript, source, AuthIP string) (any, error) {
 		Msg:     "success",
 	}
 	return result, nil
+}
+
+// DecryptPlayParams 解密播放参数
+func DecryptPlayParams(source string) (any, error) {
+	// 模拟设备信息
+	platform := "Android"
+	appVersion := config.GinConfig.App.AppVersion
+
+	// 加密盐
+	salt := "v50gjcy"
+
+	// 时间戳
+	ts := strconv.FormatInt(time.Now().Unix(), 10)
+
+	modifiedSource := fmt.Sprintf("%s&t=%s", source, ts)
+
+	return gin.H{
+		"url":     "http://yhhy.xj.6b7.xyz/vo1v03.php?url=" + modifiedSource,
+		"x-time":  ts,
+		"x-form":  platform,
+		"x-sign1": MD5PlayUrlSign(appVersion, salt, ts),
+		"x-sign2": MD5PlayUrlSign(source, salt, ts),
+		"aes_key": config.GinConfig.App.PlayAesKey,
+		"aes_iv":  config.GinConfig.App.PlayAesIv,
+	}, nil
 }
 
 // valueToLua 将Go值转换为Lua值

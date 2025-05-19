@@ -53,6 +53,8 @@ func InitRouterApp(r *gin.RouterGroup) {
 	auth.GET("/vod_comment/getsublist", controllers.VodCommentGetSubList)
 	// 视频播放
 	auth.GET("/video/play", controllers.VideoPlay)
+	// 视频播放-参数获取
+	auth.GET("/video/play/params", controllers.VideoPlayParams)
 	// 弹幕
 	auth.GET("/danmu", controllers.Danmu)
 	// 搜索

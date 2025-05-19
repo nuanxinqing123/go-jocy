@@ -685,6 +685,63 @@ func VideoPlay(c *gin.Context) {
 	c.JSON(http.StatusOK, playURL)
 }
 
+// VideoPlayParams 视频播放-参数获取
+func VideoPlayParams(c *gin.Context) {
+	client := utils.New(c.Request.Header.Get("x-token"), c.ClientIP())
+	url := utils.RandomChoice(config.GinConfig.App.BaseURL) + "/app/video/play?" + c.Request.URL.RawQuery
+
+	resp, err := client.Get(url, nil)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	config.GinLOG.Debug(fmt.Sprintf("StatusCode: %d", resp.StatusCode()))
+
+	// 解密数据
+	result, err := utils.ResponseDecryption(resp.String())
+	if err != nil {
+		config.GinLOG.Error(fmt.Sprintf("Failed to deserialize data: %s", result))
+		config.GinLOG.Error(err.Error())
+		config.GinLOG.Error(fmt.Sprintf("Res String: %s", resp.String()))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	config.GinLOG.Debug(fmt.Sprintf("Response: %s", result))
+
+	// 序列化数据
+	var res model.Play
+	if err = json.Unmarshal([]byte(result), &res); err != nil {
+		config.GinLOG.Error(fmt.Sprintf("Failed to deserialize data: %s", result))
+		config.GinLOG.Error(err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	if len(res.Data) == 0 {
+		config.GinLOG.Warn(fmt.Sprintf("Failed to fetch data: %s", result))
+		c.String(http.StatusInternalServerError, result)
+		return
+	}
+
+	// 执行参数获取
+	playParams, err := utils.DecryptPlayParams(res.Data[0].Url)
+	if err != nil {
+		config.GinLOG.Error(err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, playParams)
+}
+
 // Danmu 弹幕数据
 func Danmu(c *gin.Context) {
 	client := utils.New(c.Request.Header.Get("x-token"), c.ClientIP())

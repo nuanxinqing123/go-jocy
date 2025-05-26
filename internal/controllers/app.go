@@ -730,7 +730,7 @@ func VideoPlayParams(c *gin.Context) {
 	}
 
 	// 执行参数获取
-	playParams, err := utils.DecryptPlayParams(res.Data[0].Url)
+	playParams, err := utils.DecryptPlayParams(res.Data[0].Url, res.Data[0].Parse)
 	if err != nil {
 		config.GinLOG.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{

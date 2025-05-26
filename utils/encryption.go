@@ -13,6 +13,7 @@ import (
 	"encoding/pem"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -514,7 +515,7 @@ func DecryptPlayUrlLUA(luaScript, source, AuthIP string) (any, error) {
 }
 
 // DecryptPlayParams 解密播放参数
-func DecryptPlayParams(source string) (any, error) {
+func DecryptPlayParams(source, luaScript string) (any, error) {
 	// 模拟设备信息
 	platform := "Android"
 	appVersion := config.GinConfig.App.AppVersion
@@ -527,14 +528,33 @@ func DecryptPlayParams(source string) (any, error) {
 
 	modifiedSource := fmt.Sprintf("%s&t=%s", source, ts)
 
+	// 正则表达式（支持跨行匹配）
+	pattern := `aes_key\s*=\s*"([^"]+)"[\s\S]*?aes_iv\s*=\s*"([^"]+)"`
+	// 正则提取Key和IV
+
+	re := regexp.MustCompile(pattern)
+	matches := re.FindStringSubmatch(luaScript)
+
+	aesKey := config.GinConfig.App.PlayAesKey
+	aesIV := config.GinConfig.App.PlayAesIv
+
+	if len(matches) >= 3 {
+		aesKey = matches[1]
+		aesIV = matches[2]
+		config.GinLOG.Debug(fmt.Sprintf("AES Key: %s\n", aesKey))
+		config.GinLOG.Debug(fmt.Sprintf("AES IV:  %s\n", aesIV))
+	} else {
+		config.GinLOG.Error("正则提取KEY和IV失败")
+	}
+
 	return gin.H{
 		"url":     "https://jocy-jx.6b7.xyz/vo1v03.php?url=" + modifiedSource,
 		"x-time":  ts,
 		"x-form":  platform,
 		"x-sign1": MD5PlayUrlSign(appVersion, salt, ts),
 		"x-sign2": MD5PlayUrlSign(source, salt, ts),
-		"aes_key": config.GinConfig.App.PlayAesKey,
-		"aes_iv":  config.GinConfig.App.PlayAesIv,
+		"aes_key": aesKey,
+		"aes_iv":  aesIV,
 	}, nil
 }
 

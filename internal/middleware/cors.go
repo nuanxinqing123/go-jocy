@@ -11,8 +11,10 @@ var AllowOrigins = []string{
 	"http://localhost:3000",
 	"http://127.0.0.1:8088",
 	"http://localhost:8088",
-	"https://jocy.6b7.xyz",
-	"https://www.jocyweb.com",
+	"https://*.6b7.xyz",
+	"https://6b7.xyz",
+	"https://*.jocyweb.com",
+	"https://jocyweb.com",
 }
 
 var CorsConfig = cors.Config{

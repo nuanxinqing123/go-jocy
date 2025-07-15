@@ -11,6 +11,8 @@ var AllowOrigins = []string{
 	"http://localhost:3000",
 	"http://127.0.0.1:8088",
 	"http://localhost:8088",
+	"http://127.0.0.1:1420",
+	"http://localhost:1420",
 	"https://*.6b7.xyz",
 	"https://6b7.xyz",
 	"https://*.jocyweb.com",

@@ -47,6 +47,7 @@ func New(AuthToken, AuthIP string) *Request {
 	client.SetHeaderVerbatim("appid", "4150439554430529")
 	client.SetHeaderVerbatim("ts", strconv.FormatInt(ts, 10))
 	client.SetHeaderVerbatim("authentication", sign)
+	client.SetHeaderVerbatim("tcs", "2")
 
 	if AuthToken != "" {
 		client.SetHeaderVerbatim("x-token", AuthToken)

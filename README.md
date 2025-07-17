@@ -2,6 +2,8 @@
 
 > 基于 Gin 的高性能二次元视频聚合后端服务
 
+> 前端开源地址: [https://github.com/nuanxinqing123/jocy-web-refactoring](https://github.com/nuanxinqing123/jocy-web-refactoring)
+
 ---
 
 <p align="center">
